@@ -1,0 +1,114 @@
+{
+	"about": "A implementation of the CSV metadata form fields schema",
+	"form_fields": [
+		{ "field_name": "name",
+		  "label": { "lv": "Nosaukums",
+					 "en": "Name"},
+		  "required": true,
+		  "disabled": true,
+		  "preset": "textbox",
+		  "help_text": "Datu kolonas nosaukums"
+		}, 
+		{ "field_name": "titles",
+		  "label": { "lv": "Virsraksts",
+					 "en": "Title"},
+		  "required": true,
+		  "preset": "textbox",
+		  "help_text": "Datu kolonas virsraksts"
+		}, 
+		{ "field_name": "dc:description",
+		  "label": { "lv": "Apraksts",
+					 "en": "Description"},
+		  "required": true,
+		  "preset": "textarea",
+		  "help_text": "Datu kolonas apraksts"
+		}, 
+		{ "field_name": "datatype",
+		  "label": { "lv": "Datu tips",
+					 "en": "Data type"},
+		  "required": true,
+		  "preset": "select",
+			"choices": [
+				{
+				"value": "anyURI",
+				"label": "anyURI"
+				},
+				{
+				"value": "base64Binary",
+				"label": "base64Binary"
+				},
+				{
+				"value": "decimal",
+				"label": "decimal"
+				},
+				{
+				"value": "double",
+				"label": "double"
+				},
+				{
+				"value": "float",
+				"label": "float"
+				},
+				{
+				"value": "string",
+				"label": "string"
+				},
+				{
+				"value": "boolean",
+				"label": "boolean"
+				},
+				{
+				"value": "date",
+				"label": "date"
+				},
+				{
+				"value": "dateTime",
+				"label": "dateTime"
+				},
+				{
+				"value": "string",
+				"label": "string"
+				}
+			],
+		  "help_text": "Izvēlieties atbilstošu datu tipu datu kolonai"	
+		}, 
+		{ "field_name": "length",
+		  "label": { "lv": "garums",
+					 "en": "Length"},
+		  "preset": "textbox",
+		  "help_text": "Ja nepieciešams norādiet datu kolonas vertības garumu"
+		},
+		{ "field_name": "required",
+		  "label": { "lv": "Obligāts",
+					 "en": "Required"},
+		  "preset": "checkbox",
+		  "help_text": "Ja nepieciešams norādiet vai datu kolonas vertība ir obligāta"
+		}, 
+		{ "field_name": "primaryKey",
+		  "label": { "lv": "Primārā atslēga",
+					 "en": "Primary key"},
+		  "preset": "checkbox",
+		  "help_text": "Ja nepieciešams norādiet vai datu kolona ir primārā atslēga"
+		}, 
+		{ "field_name": "foreignKeys",
+		  "label": { "lv": "Sekundārā atslēga",
+					 "en": "Foreign key"},
+		  "preset": "checkbox",
+		  "help_text": "Ja nepieciešams norādiet vai datu kolona ir sekundārā atslēga. Ja jūs izvēlēsieties šo opciju, Jums būs jānorāda references tabula un datu kolona"
+		}, 
+		{ "field_name": "resource",
+		  "label": { "lv": "References URL",
+					 "en": "Reference URL"},
+		  "required": true,
+		  "preset": "textbox",
+		  "help_text": "Sekondārās atslēgas references tabula tīmekļī piem. http://www.example.com/ForeignTable.csv"
+		}, 
+		{ "field_name": "columnReference",
+		  "label": { "lv": "References datu kolona",
+					 "en": "Reference column"},
+		  "required": true,
+		  "preset": "textbox",
+		  "help_text": "Sekondārās atslēgas references tabulas datu kolonas nosaukums"
+		}
+	]	
+}
