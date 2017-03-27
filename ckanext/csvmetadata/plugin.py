@@ -102,13 +102,7 @@ class ResourceCSVController(base.BaseController):
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _('Resource not found'))
 
-        """try:
-            datapusher_status = p.toolkit.get_action('datapusher_status')(
-                None, {'resource_id': resource_id}
-            )
-        except logic.NotFound:
-            datapusher_status = {}
-        except logic.NotAuthorized:
+        """
             base.abort(403, _('Not authorized to see this page'))
         """
 
@@ -155,7 +149,6 @@ class CSVMetadataPlugin(p.SingletonPlugin):
 
         plugin_path = os.path.dirname(__file__)
         self.form_schema_path = os.path.join(plugin_path, "form_schema.json")
-        print(self.form_schema_path)
         check_json_file(self.form_schema_path) #Will try to open and validate file at the path
         global form_schema_path
         form_schema_path = self.form_schema_path
