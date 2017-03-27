@@ -7,8 +7,6 @@ import os
 import ckan.plugins as p
 import ckan.lib.base as base
 import ckan.lib.helpers as core_helpers
-# import ckanext.datapusher.logic.action as action
-# import ckanext.datapusher.helpers as helpers
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as toolkit
@@ -68,7 +66,7 @@ class ResourceCSVController(base.BaseController):
         if toolkit.request.method == 'POST':
             #Loading data from form
             try:
-                #toolkit.c.pkg_dict = p.toolkit.get_action('csvjsonstuff_submit')(None, {'resource_id': resource_id})
+                #toolkit.c.pkg_dict = p.toolkit.get_action('csvmetadata_submit')(None, {'resource_id': resource_id})
                 data = p.toolkit.request.POST
                 print(data)
                 #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
@@ -102,7 +100,7 @@ class ResourceCSVController(base.BaseController):
             base.abort(403, _('Not authorized to see this page'))
         """
 
-        return base.render('csvjsonstuff/resource_csv.html',
+        return base.render('csvmetadata/resource_csv.html',
                            extra_vars={'csv_headers':["one", "two", "three"], 'schema':form_schema})
 
 
@@ -114,7 +112,7 @@ def submit_auth(*args, **kwargs):
     print("submit_auth")
     import pdb; pdb.set_trace()
 
-class CSVJSONStuffPlugin(p.SingletonPlugin):
+class CSVMetadataPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
@@ -137,14 +135,14 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        for config_option in ('ckan.site_url', 'ckan.csvjsonstuff.form_schema_path'):
+        for config_option in ('ckan.site_url', 'ckan.csvmetadata.form_schema_path'):
             if not config.get(config_option):
                 pass
                 #raise Exception(
-                #    'Config option `{0}` must be set to use CSVJSONStuff.'
+                #    'Config option `{0}` must be set to use CSVMetadata.'
                 #    .format(config_option))
 
-        #TEMPORARY #self.form_schema_path = os.path.abspath(config.get('ckan.csvjsonstuff.form_schema_path'))
+        #TEMPORARY #self.form_schema_path = os.path.abspath(config.get('ckan.csvmetadata.form_schema_path'))
         self.form_schema_path = os.path.abspath("form_schema.json")
         print(self.form_schema_path)
         check_json_file(self.form_schema_path) #Will try to open and validate file at the path
@@ -155,20 +153,20 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
     def before_map(self, m):
         m.connect(
             'resource_csv', '/dataset/{id}/resource_csv/{resource_id}',
-            controller='ckanext.csvjsonstuff.plugin:ResourceCSVController',
+            controller='ckanext.csvmetadata.plugin:ResourceCSVController',
             action='resource_csv', ckan_icon='cloud-upload')
         return m
 
     #IActions
     def get_actions(self):
-        return {'csvjsonstuff_submit': submit}
-        #        'csvjsonstuff_hook': action.datapusher_hook,
-        #        'csvjsonstuff_status': action.datapusher_status}
+        return {'csvmetadata_submit': submit}
+        #        'csvmetadata_hook': action.datapusher_hook,
+        #        'csvmetadata_status': action.datapusher_status}
 
 
     #IAuthFunctions
     def get_auth_functions(self):
-        return {'csvjsonstuff_submit': submit_auth}
+        return {'csvmetadata_submit': submit_auth}
 
     #ITemplateHelpers
     def get_helpers(self):
@@ -177,51 +175,3 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
         #    'datapusher_status_description':
         #    helpers.datapusher_status_description,
         #}
-
-#Could be useful later
-"""
-
-    #IDomainObjectModification
-    def notify(self, entity, operation=None):
-        if isinstance(entity, model.Resource):
-            if (operation == model.domain_object.DomainObjectOperation.new or
-                    not operation):
-                # if operation is None, resource URL has been changed, as
-                # the notify function in IResourceUrlChange only takes
-                # 1 parameter
-                context = {'model': model, 'ignore_auth': True,
-                           'defer_commit': True}
-                if (entity.format and
-                        entity.format.lower() in self.datapusher_formats and
-                        entity.url_type != 'datapusher'):
-
-                    try:
-                        task = p.toolkit.get_action('task_status_show')(
-                            context, {
-                                'entity_id': entity.id,
-                                'task_type': 'datapusher',
-                                'key': 'datapusher'}
-                        )
-                        if task.get('state') == 'pending':
-                            # There already is a pending DataPusher submission,
-                            # skip this one ...
-                            log.debug(
-                                'Skipping DataPusher submission for '
-                                'resource {0}'.format(entity.id))
-                            return
-                    except p.toolkit.ObjectNotFound:
-                        pass
-
-                    try:
-                        log.debug('Submitting resource {0}'.format(entity.id) +
-                                  ' to DataPusher')
-                        p.toolkit.get_action('datapusher_submit')(context, {
-                            'resource_id': entity.id
-                        })
-                    except p.toolkit.ValidationError, e:
-                        # If datapusher is offline want to catch error instead
-                        # of raising otherwise resource save will fail with 500
-                        log.critical(e)
-                        pass"""
-
-
