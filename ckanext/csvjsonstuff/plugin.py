@@ -27,7 +27,7 @@ form_schema_path = None
 #class DatastoreException(Exception):
 #    pass
 
-def check_json_file(path, file_desc="CSVJSONStuff config file"):
+def check_json_file(path, file_desc="CSVMetadata config file"):
     if not os.path.isfile(path):
         raise Exception(
              '{} not found at {}'
