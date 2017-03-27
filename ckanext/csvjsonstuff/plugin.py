@@ -69,8 +69,14 @@ class ResourceCSVController(base.BaseController):
             #Loading data from form
             try:
                 #toolkit.c.pkg_dict = p.toolkit.get_action('csvjsonstuff_submit')(None, {'resource_id': resource_id})
-                #import pdb; pdb.set_trace()
-                pass
+                data = p.toolkit.request.POST
+                print(data)
+                #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
+                core_helpers.redirect_to(
+                    controller='package',
+                    action='read',
+                    id=id
+                )
             except logic.ValidationError:
                 pass
 
@@ -97,7 +103,7 @@ class ResourceCSVController(base.BaseController):
         """
 
         return base.render('csvjsonstuff/resource_csv.html',
-                           extra_vars={'schema':form_schema})
+                           extra_vars={'csv_headers':["one", "two", "three"], 'schema':form_schema})
 
 
 def submit(*args, **kwargs):
@@ -219,9 +225,3 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
                         pass"""
 
 
-"""            #core_helpers.redirect_to(
-            #    controller='ckanext.csvjsonstuff.plugin:ResourceCSVController',
-            #    action='resource_csv',
-            #    id=id,
-            #    resource_id=resource_id
-            #)"""

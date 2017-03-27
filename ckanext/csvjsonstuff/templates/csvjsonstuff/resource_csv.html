@@ -1,26 +1,35 @@
 {% extends "package/resource_edit_base.html" %}
 {% import 'macros/form.html' as form %}
 
-{# Needed to implement helper for this? #}
-{# {% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %} #}
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block primary_content_inner %}
 
   {% set action = h.url_for(controller='ckanext.csvjsonstuff.plugin:ResourceCSVController', action='resource_csv', id=pkg.name, resource_id=res.id) %}
   {% set show_table = true %}
-  {% for i in range(2) %}
-    {{ form.input('title', label=_('Title')) }}
-    {{ form.input('header', label=_('Header')) }}
-    {{ form.textarea('description', label=_('Description')) }}
-    {# {{ form.select('datatype', label=_('Datatype'), options=h.csvjsonstuff_get_allowed_datatypes()) }} #}
-    {{ form.select('datatype', label=_('Datatype'), options={}) }}
-    {{ form.input('length', label=_('Length')) }}
-    {{ form.checkbox('required', label=_('Required')) }}
-    {{ form.checkbox('primary_key', label=_('Primary key')) }}
-    {{ form.checkbox('secondary_key', label=_('Secondary key')) }}
-  {% endfor %}
-  <h1> {{ status }} </h1>
+  {% set form_fields = schema["form_fields"] %}
+  
   <form method="post" action="{{ action }}" >
+  {% for csv_header in csv_headers %}
+      {% set csv_header_index = loop.index0 %}
+      {% for form_field in form_fields %}
+          {% set element_type = form_field["preset"] %}
+          {% if form_field["name"] == "name" %}
+              {% set value=csv_header %}
+          {% else %}
+              {% set value="" %}
+          {% endif %}
+          {% set label = form_field["label"]["lv"] %}
+          {% set required = form_field["is_required"] %}
+          {% set element_id = "{}-{}".format(csv_header_index, form_field["name"]) %}
+          {% if element_type in ["textarea", "input"] %}
+              {% call form[element_type](name=element_id, id=element_id, label=label, value=value, is_required=required) %} {% endcall %}
+          {% else %}
+              {% call form[element_type](name=element_id, id=element_id, label=label, is_required=required) %} {% endcall %}
+          {% endif %}
+      {% endfor %}
+      <hr>
+  {% endfor %}
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> 'Upload yer CSVs' 
     </button>
