@@ -114,7 +114,7 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
-    #p.implements(p.IAuthFunctions)
+    p.implements(p.IAuthFunctions)
     #p.implements(p.IResourceUrlChange)
     #p.implements(p.IDomainObjectModification, inherit=True)
     #p.implements(p.ITemplateHelpers)
@@ -135,11 +135,14 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
 
         for config_option in ('ckan.site_url', 'ckan.csvjsonstuff.form_schema_path'):
             if not config.get(config_option):
-                raise Exception(
-                    'Config option `{0}` must be set to use CSVJSONStuff.'
-                    .format(config_option))
+                pass
+                #raise Exception(
+                #    'Config option `{0}` must be set to use CSVJSONStuff.'
+                #    .format(config_option))
 
-        self.form_schema_path = os.path.abspath(config.get('ckan.csvjsonstuff.form_schema_path'))
+        #TEMPORARY #self.form_schema_path = os.path.abspath(config.get('ckan.csvjsonstuff.form_schema_path'))
+        self.form_schema_path = os.path.abspath("form_schema.json")
+        print(self.form_schema_path)
         check_json_file(self.form_schema_path) #Will try to open and validate file at the path
         global form_schema_path
         form_schema_path = self.form_schema_path
@@ -161,16 +164,15 @@ class CSVJSONStuffPlugin(p.SingletonPlugin):
 
     #IAuthFunctions
     def get_auth_functions(self):
-        return {'csvjsonstuff_submit': self.submit_auth}
-        #        {'datapusher_status': auth.datapusher_status}
+        return {'csvjsonstuff_submit': submit_auth}
 
     #ITemplateHelpers
     def get_helpers(self):
-        return {
-            'datapusher_status': helpers.datapusher_status,
-            'datapusher_status_description':
-            helpers.datapusher_status_description,
-        }
+        return {}
+        #    'datapusher_status': helpers.datapusher_status,
+        #    'datapusher_status_description':
+        #    helpers.datapusher_status_description,
+        #}
 
 #Could be useful later
 """
