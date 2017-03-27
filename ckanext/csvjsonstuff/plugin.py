@@ -57,7 +57,7 @@ class ResourceCSVController(base.BaseController):
             if element["preset"] in preset_map:
                 element["preset"] = preset_map[element["preset"]]
             element["name"] = element.pop("field_name")
-            element["is_required"] = element.pop("required")
+            element["is_required"] = element.pop("required") if "required" in element else False
         return schema
 
     def resource_csv(self, id, resource_id):
