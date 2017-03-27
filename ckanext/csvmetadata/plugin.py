@@ -3,6 +3,9 @@
 import logging
 import json
 import os
+from StringIO import StringIO
+
+from ckanapi import LocalCKAN
 
 import ckan.plugins as p
 import ckan.lib.base as base
@@ -63,12 +66,20 @@ class ResourceCSVController(base.BaseController):
         form_schema = self.get_form_schema()
         contents = p.toolkit.get_action('resource_show')(None, {'id': resource_id})
 
+        #Checking if we received a POST request - 
+        #then we need to create JSON from received data and upload it
         if toolkit.request.method == 'POST':
             #Loading data from form
             try:
                 #toolkit.c.pkg_dict = p.toolkit.get_action('csvmetadata_submit')(None, {'resource_id': resource_id})
                 data = p.toolkit.request.POST
                 print(data)
+                #TODO: process received data
+                io_object = StringIO(repr(data))
+                #monkeypatching because ckanapi gets filename from descriptor
+                io_object.name = "bom.csv.metadata.json"
+                api = LocalCKAN()
+                api.action.resource_create(package_id="bom", name="bom.csv.metadata.json", url="some url", upload=io_object)
                 #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
                 core_helpers.redirect_to(
                     controller='package',
@@ -78,7 +89,8 @@ class ResourceCSVController(base.BaseController):
             except logic.ValidationError:
                 pass
 
-        
+        #Assuming GET method
+
         #Needed so that resource data is properly included in the template?
         try:
             toolkit.c.pkg_dict = p.toolkit.get_action('package_show')(
