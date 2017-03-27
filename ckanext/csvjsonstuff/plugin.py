@@ -43,7 +43,7 @@ def check_json_file(path, file_desc="CSVMetadata config file"):
 
 class ResourceCSVController(base.BaseController):
 
-    def get_table_schema(self):
+    def get_form_schema(self):
         check_json_file(form_schema_path) #Will try to open and validate file at the path
         with open(form_schema_path, 'r') as f:
             schema = json.load(f)
@@ -62,13 +62,11 @@ class ResourceCSVController(base.BaseController):
 
     def resource_csv(self, id, resource_id):
         
-        table_schema = self.get_table_schema()
+        form_schema = self.get_form_schema()
         contents = p.toolkit.get_action('resource_show')(None, {'id': resource_id})
-        import pdb;pdb.set_trace()
 
         if toolkit.request.method == 'POST':
             #Loading data from form
-            status = "uploaded"
             try:
                 #toolkit.c.pkg_dict = p.toolkit.get_action('csvjsonstuff_submit')(None, {'resource_id': resource_id})
                 #import pdb; pdb.set_trace()
@@ -99,7 +97,7 @@ class ResourceCSVController(base.BaseController):
         """
 
         return base.render('csvjsonstuff/resource_csv.html',
-                           extra_vars={'status': status})
+                           extra_vars={'schema':form_schema})
 
 
 def submit(*args, **kwargs):
