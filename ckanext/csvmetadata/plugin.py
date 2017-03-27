@@ -135,15 +135,14 @@ class CSVMetadataPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        for config_option in ('ckan.site_url', 'ckan.csvmetadata.form_schema_path'):
+        for config_option in ('ckan.site_url', ):
             if not config.get(config_option):
-                pass
-                #raise Exception(
-                #    'Config option `{0}` must be set to use CSVMetadata.'
-                #    .format(config_option))
+                raise Exception(
+                    'Config option `{0}` must be set to use CSVMetadata.'
+                    .format(config_option))
 
-        #TEMPORARY #self.form_schema_path = os.path.abspath(config.get('ckan.csvmetadata.form_schema_path'))
-        self.form_schema_path = os.path.abspath("form_schema.json")
+        plugin_path = os.path.dirname(__file__)
+        self.form_schema_path = os.path.join(plugin_path, "form_schema.json")
         print(self.form_schema_path)
         check_json_file(self.form_schema_path) #Will try to open and validate file at the path
         global form_schema_path
