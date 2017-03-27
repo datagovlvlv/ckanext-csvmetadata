@@ -15,7 +15,7 @@
     {# {{ form.select('datatype', label=_('Datatype'), options=h.csvjsonstuff_get_allowed_datatypes()) }} #}
     {{ form.select('datatype', label=_('Datatype'), options={}) }}
     {{ form.input('length', label=_('Length')) }}
-    {{ form.checkbox('required', label=_('Required')), is_required=True }}
+    {{ form.checkbox('required', label=_('Required')) }}
     {{ form.checkbox('primary_key', label=_('Primary key')) }}
     {{ form.checkbox('secondary_key', label=_('Secondary key')) }}
   {% endfor %}
