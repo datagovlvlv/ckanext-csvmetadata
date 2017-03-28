@@ -112,36 +112,39 @@ class ResourceCSVController(base.BaseController):
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _('Resource not found'))
 
-        #Getting CSV from the link
-
+        #Getting CSV from the resource url
         status = "ok"
+        csv_headers = []
 
-        #TODO: LIMIT RESPONSE SIZE!
-        """import requests
-        r = requests.get('https://github.com/timeline.json', timeout=5, stream=True)
-        r.raw.decode_content = True
-        content = r.raw.read(1024+1)
-        if len(content) > 1024:
-            raise ValueError('Too large a response')
-        print content"""
-
-
-        req = requests.get(resource_url)
-        if req.status_code == 200:
-            csv_document = req.text
-            sample = csv_document[:1024]
-            sniffer = csv.Sniffer()
-            try:
-                dialect = sniffer.sniff(sample)
-            except csv.Error:
-                status = "not_csv"
-            else:
-                csv_headers_str = sample.splitlines()[0].strip()
-                delimiter = str(dialect.delimiter)
-                quotechar = str(dialect.quotechar)
-                csv_headers = csv.reader([csv_headers_str], delimiter=delimiter, quotechar=quotechar).next()
+        try:
+            req = requests.get(resource_url, timeout=10, stream=True)
+        except:
+            status = "url_fail"
         else:
-            status = "http_error_{}".format(req.status_code)
+            req.raw.decode_content = True
+            if req.status_code == 200:
+                content = req.raw.read(csv_header_byte_limit+1)
+                if len(content) > csv_header_byte_limit:
+                    pass #Noting that the response is too large
+                #Limiting the amount of CSV to be processed
+                sample = content[:csv_header_byte_limit]
+
+                #Now trying to deduce, what kind of CSV is this and if it's CSV at all
+                sniffer = csv.Sniffer()
+                try:
+                    dialect = sniffer.sniff(sample)
+                except csv.Error:
+                    #Whatever we got, Python CSV module heuristics don't recognize it as CSV
+                    status = "not_csv"
+                else:
+                    #Reading one line from sample
+                    csv_headers_str = sample.splitlines()[0].strip()
+                    #Weird bug in Python CSV module - needs conversion like this
+                    delimiter = str(dialect.delimiter)
+                    quotechar = str(dialect.quotechar)
+                    csv_headers = csv.reader([csv_headers_str], delimiter=delimiter, quotechar=quotechar).next()
+            else:
+                status = "http_error_{}".format(req.status_code)
         
         print(status)
         print(csv_headers)

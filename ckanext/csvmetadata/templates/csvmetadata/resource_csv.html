@@ -9,6 +9,20 @@
   {% set show_table = true %}
   {% set form_fields = schema["form_fields"] %}
   
+  {% if status != "ok" %}
+    {% if status == "url_fail" %}
+      <h1> {{ _("Can't download source file!") }} </h1> 
+      <h3> {{ _("Check resource URL and try again") }} </h3>
+    {% elif status == "not_csv" %}
+      <h1> {{ _("Wrong file format or internal structure!") }} </h1> 
+      <h3> {{ _("'CSV metadata' works with CSV files that have CSV headers") }} </h3>
+    {% elif status.startswith("http_error_") %}
+      {% set error_code=status[len("http_error_"):] %}
+      <h1> {{ _("HTTP error, code:") }} {{error_code}} </h1>
+    {% endif %}
+
+  {% else %}
+
   <form method="post" action="{{ action }}" >
   {% for csv_header in csv_headers %}
       {% set csv_header_index = loop.index0 %}
@@ -43,6 +57,8 @@
       <i class="fa fa-cloud-upload"></i> 'Upload your CSVs' 
     </button>
   </form>
+
+  {% endif %}
 
   {#  {% if status.error and status.error.message %}
     {% set show_table = false %}
