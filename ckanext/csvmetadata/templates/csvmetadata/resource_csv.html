@@ -20,12 +20,21 @@
               {% set value="" %}
           {% endif %}
           {% set label = form_field["label"]["lv"] %}
-          {% set required = form_field["is_required"] %}
+          {% set required = form_field["required"] %}
           {% set element_id = "{}-{}".format(csv_header_index, form_field["name"]) %}
-          {% if element_type in ["textarea", "input"] %}
-              {% call form[element_type](name=element_id, id=element_id, label=label, value=value, is_required=required) %} {% endcall %}
+          {% if form_field["disabled"] %}
+              {% set attrs={"disabled":""} %}
           {% else %}
-              {% call form[element_type](name=element_id, id=element_id, label=label, is_required=required) %} {% endcall %}
+              {% set attrs={} %}
+          {% endif %}    
+          {% if element_type in ["textarea", "input"] %}
+              {% call form[element_type](name=element_id, id=element_id, label=label, value=value, is_required=required, attrs=attrs) %} {% endcall %}
+          {% elif element_type == "select" %}
+              {# {% set selected=form_field["selected"] %} #}              
+              {% set selected="string" %} 
+              {% call form[element_type](name=element_id, id=element_id, label=label, options=form_field["choices"], selected=selected, is_required=required, attrs=attrs) %} {% endcall %}
+          {% else %}
+              {% call form[element_type](name=element_id, id=element_id, label=label, is_required=required, attrs=attrs) %} {% endcall %}
           {% endif %}
       {% endfor %}
       <hr>

@@ -61,8 +61,14 @@ class ResourceCSVController(base.BaseController):
             if element["preset"] in preset_map:
                 element["preset"] = preset_map[element["preset"]]
             element["name"] = element.pop("field_name")
-            element["is_required"] = element.pop("required") if "required" in element else False
+            if element["preset"] == "select":
+                for choice in element["choices"]:
+                    choice["name"] = choice.pop("label")
+                #Currently overriden in the template
+                element["selected"] = element["choices"][0]["value"] if element["choices"] else ""
+            element["required"] = element.pop("required") if "required" in element else False
         return schema
+
 
     def resource_csv(self, id, resource_id):
         contents = p.toolkit.get_action('resource_show')(None, {'id': resource_id})
