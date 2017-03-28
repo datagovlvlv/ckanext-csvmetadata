@@ -102,36 +102,47 @@ class ResourceCSVController(base.BaseController):
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _('Resource not found'))
 
-        """
-            base.abort(403, _('Not authorized to see this page'))
-        """
+        #Getting CSV from the link
 
+        status = "ok"
+
+        #TODO: LIMIT RESPONSE SIZE!
+        """import requests
+        r = requests.get('https://github.com/timeline.json', timeout=5, stream=True)
+        r.raw.decode_content = True
+        content = r.raw.read(1024+1)
+        if len(content) > 1024:
+            raise ValueError('Too large a response')
+        print content"""
+
+
+        req = requests.get(resource_url)
+        if req.status_code == 200:
+            csv_document = req.text
+            sample = csv_document[:1024]
+            sniffer = csv.Sniffer()
+            try:
+                dialect = sniffer.sniff(sample)
+            except csv.Error:
+                status = "not_csv"
+            else:
+                csv_headers_str = sample.splitlines()[0].strip()
+                delimiter = str(dialect.delimiter)
+                quotechar = str(dialect.quotechar)
+                csv_headers = csv.reader([csv_headers_str], delimiter=delimiter, quotechar=quotechar).next()
+        else:
+            status = "http_error_{}".format(req.status_code)
+        
+        print(status)
+        print(csv_headers)
         return base.render('csvmetadata/resource_csv.html',
-                           extra_vars={'csv_headers':["one", "two", "three"], 'schema':form_schema})
+                           extra_vars={'status':status, 'csv_headers':csv_headers, 'schema':form_schema})
 
-
-def submit(*args, **kwargs):
-    print("submit")
-    import pdb; pdb.set_trace()
-
-def submit_auth(*args, **kwargs):
-    print("submit_auth")
-    import pdb; pdb.set_trace()
 
 class CSVMetadataPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IActions)
-    p.implements(p.IAuthFunctions)
-    #p.implements(p.IResourceUrlChange)
-    #p.implements(p.IDomainObjectModification, inherit=True)
-    #p.implements(p.ITemplateHelpers)
     p.implements(p.IRoutes, inherit=True)
-
-    #Datapusher-specific vars?
-    #legacy_mode = False
-    #resource_show_action = None
-    #end Datapusher-specific vars?
 
     #IConfigurer
     def update_config(self, config):
@@ -160,22 +171,3 @@ class CSVMetadataPlugin(p.SingletonPlugin):
             controller='ckanext.csvmetadata.plugin:ResourceCSVController',
             action='resource_csv', ckan_icon='cloud-upload')
         return m
-
-    #IActions
-    def get_actions(self):
-        return {'csvmetadata_submit': submit}
-        #        'csvmetadata_hook': action.datapusher_hook,
-        #        'csvmetadata_status': action.datapusher_status}
-
-
-    #IAuthFunctions
-    def get_auth_functions(self):
-        return {'csvmetadata_submit': submit_auth}
-
-    #ITemplateHelpers
-    def get_helpers(self):
-        return {}
-        #    'datapusher_status': helpers.datapusher_status,
-        #    'datapusher_status_description':
-        #    helpers.datapusher_status_description,
-        #}
