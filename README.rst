@@ -34,14 +34,12 @@ Workarounds
 
 For some reason, CKAN doesn't regenerate its templates to include the plugin's tab into resource_edit page, even though it's supposed to. If the tab is not added for you upon plugin installation, edit ``ckan/ckan/templates/package/resource_edit_base.htm`` and add ``{{ h.build_nav_icon('resource_csv', _('CSV metadata'), id=pkg.name, resource_id=res.id) }}`` to ``{% block content_primary_nav %}`` section. It should look more or less like this:
 
-```
-{% block content_primary_nav %}
-  {{ h.build_nav_icon('resource_edit', _('Edit resource'), id=pkg.name, resource_id=res.id) }}
-  {% block inner_primary_nav %}{% endblock %}
-  {{ h.build_nav_icon('resource_csv', _('CSV metadata'), id=pkg.name, resource_id=res.id) }}
-  {{ h.build_nav_icon('views', _('Views'), id=pkg.name, resource_id=res.id) }}
-{% endblock %}
-```
+  {% block content_primary_nav %}
+    {{ h.build_nav_icon('resource_edit', _('Edit resource'), id=pkg.name, resource_id=res.id) }}
+    {% block inner_primary_nav %}{% endblock %}
+    {{ h.build_nav_icon('resource_csv', _('CSV metadata'), id=pkg.name, resource_id=res.id) }}
+    {{ h.build_nav_icon('views', _('Views'), id=pkg.name, resource_id=res.id) }}
+  {% endblock %}
 
 
 ----
