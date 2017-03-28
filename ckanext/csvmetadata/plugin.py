@@ -27,6 +27,7 @@ _get_or_bust = logic.get_or_bust
 #A global that stores form schema path
 form_schema_path = None
 
+csv_header_byte_limit = 4096
 
 #class DatastoreException(Exception):
 #    pass
