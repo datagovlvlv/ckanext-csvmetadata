@@ -64,10 +64,6 @@
 				{
 				"value": "dateTime",
 				"label": "dateTime"
-				},
-				{
-				"value": "string",
-				"label": "string"
 				}
 			],
 		  "help_text": "Izvēlieties atbilstošu datu tipu datu kolonai"	
