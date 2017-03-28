@@ -25,6 +25,8 @@
 
   <form method="post" action="{{ action }}" >
   {% for csv_header in csv_headers %}
+      {# Ugly, will re-think it before this is finished #}
+      {{ form.hidden("csv_headers", '\",\"'.join(csv_headers)) }}
       {% set csv_header_index = loop.index0 %}
       {% for form_field in form_fields %}
           {% set element_type = form_field["preset"] %}
@@ -53,7 +55,7 @@
       {% endfor %}
       <hr>
   {% endfor %}
-    <button class="btn btn-primary" name="save" type="submit">
+    <button class="btn btn-primary" type="submit">
       <i class="fa fa-cloud-upload"></i> 'Upload your CSVs' 
     </button>
   </form>
