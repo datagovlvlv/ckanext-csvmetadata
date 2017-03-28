@@ -81,24 +81,22 @@ class ResourceCSVController(base.BaseController):
         #then we need to create JSON from received data and upload it
         if toolkit.request.method == 'POST':
             #Loading data from form
-            try:
-                #toolkit.c.pkg_dict = p.toolkit.get_action('csvmetadata_submit')(None, {'resource_id': resource_id})
-                data = p.toolkit.request.POST
-                print(data)
-                #TODO: process received data
-                io_object = StringIO(repr(data))
-                #monkeypatching because ckanapi gets filename from descriptor
-                io_object.name = "bom.csv.metadata.json"
-                api = LocalCKAN()
-                api.action.resource_create(package_id="bom", name="bom.csv.metadata.json", url="some url", upload=io_object)
-                #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
-                core_helpers.redirect_to(
-                    controller='package',
-                    action='read',
-                    id=id
-                )
-            except logic.ValidationError:
-                pass
+            data = p.toolkit.request.POST
+
+            #TODO: process received data
+            print(dict(data))
+            #ENDTODO
+
+            io_object = StringIO(dict(data))
+            #monkeypatching because ckanapi gets filename from descriptor
+            io_object.name = "'{}'_metadata.json".format(id)
+            ckan_api.action.resource_create(package_id=id, name=io_object.name, url="I don't know how to figure out the URL", upload=io_object)
+            #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
+            core_helpers.redirect_to(
+                controller='package',
+                action='read',
+                id=id
+            )
 
         #Assuming GET method
 
