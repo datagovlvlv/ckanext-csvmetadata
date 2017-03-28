@@ -6,6 +6,8 @@ import json
 import logging
 import requests
 from StringIO import StringIO
+from collections import OrderedDict
+
 
 from ckanapi import LocalCKAN
 ckan_api = LocalCKAN()
@@ -70,6 +72,41 @@ class ResourceCSVController(base.BaseController):
             element["required"] = element.pop("required") if "required" in element else False
         return schema
 
+    def form_to_csvw(self, form_data):
+        csv_headers_str = form_data.pop("csv_headers")
+        csv_headers = csv_headers_str.split('\",\"')
+
+        #Dictionary to store CSVW data
+        csvw_json_data = OrderedDict()
+        csvw_json_data["@context"] = "http://www.w3.org/ns/csvw"
+        csvw_json_data["@type"] = "Table"
+        #Creating a dictionary for each CSV header so that we can stuff data from form to those dictionaries
+        schema = {"columns":[dict() for i in range(len(csv_headers))]}
+
+        form_elements = form_data.keys()
+        form_elements.sort()
+        for key in form_elements:
+            try:
+                header_num_str, form_field_name = key.split("-", 1)
+                header_num = int(header_num_str)
+            except:
+                print("Error while parsing key {}".format(key))
+            else:
+                schema["columns"][header_num][form_field_name] = form_data[key]
+        #Working around checkboxes - they'll be in the form data if set, but as '"checkbox_name":""' instead of '"checkbox_name"=True'
+        form_schema = self.get_form_schema()
+        checkbox_ids = [element["name"] for element in form_schema["form_fields"] if element["preset"] == "checkbox"]
+        print(checkbox_ids)
+        for column in schema["columns"]:
+            for checkbox_id in checkbox_ids:
+                if checkbox_id in column.keys():
+                    column["checkbox_id"] = True
+
+        #Adding created schema to CSVW dictionary
+        csvw_json_data["tableSchema"] = schema
+        #Turn OrderedDict into JSON
+        csvw_json_string_data = json.dumps(csvw_json_data, indent=2)
+        return csvw_json_string_data
 
     def resource_csv(self, id, resource_id):
         contents = p.toolkit.get_action('resource_show')(None, {'id': resource_id})
@@ -81,13 +118,11 @@ class ResourceCSVController(base.BaseController):
         #then we need to create JSON from received data and upload it
         if toolkit.request.method == 'POST':
             #Loading data from form
-            data = p.toolkit.request.POST
+            form_data = p.toolkit.request.POST
+            csvw_string = self.form_to_csvw(dict(form_data))
+            print(csvw_string)
+            io_object = StringIO(csvw_string)
 
-            #TODO: process received data
-            print(dict(data))
-            #ENDTODO
-
-            io_object = StringIO(dict(data))
             #monkeypatching because ckanapi gets filename from descriptor
             io_object.name = "'{}'_metadata.json".format(id)
             ckan_api.action.resource_create(package_id=id, name=io_object.name, url="I don't know how to figure out the URL", upload=io_object)
