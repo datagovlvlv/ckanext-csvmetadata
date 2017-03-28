@@ -1,11 +1,14 @@
 # encoding: utf-8
 
-import logging
-import json
 import os
+import csv
+import json
+import logging
+import requests
 from StringIO import StringIO
 
 from ckanapi import LocalCKAN
+ckan_api = LocalCKAN()
 
 import ckan.plugins as p
 import ckan.lib.base as base
@@ -62,10 +65,11 @@ class ResourceCSVController(base.BaseController):
         return schema
 
     def resource_csv(self, id, resource_id):
-        
-        form_schema = self.get_form_schema()
         contents = p.toolkit.get_action('resource_show')(None, {'id': resource_id})
 
+        form_schema = self.get_form_schema()
+        resource_url = contents["url"]
+        
         #Checking if we received a POST request - 
         #then we need to create JSON from received data and upload it
         if toolkit.request.method == 'POST':
@@ -91,7 +95,7 @@ class ResourceCSVController(base.BaseController):
 
         #Assuming GET method
 
-        #Needed so that resource data is properly included in the template?
+        #This data is, apparently, needed so that resource data is properly included in the template?
         try:
             toolkit.c.pkg_dict = p.toolkit.get_action('package_show')(
                 None, {'id': id}
