@@ -69,7 +69,7 @@
 		  "help_text": "Izvēlieties atbilstošu datu tipu datu kolonai"	
 		}, 
 		{ "field_name": "length",
-		  "label": { "lv": "garums",
+		  "label": { "lv": "Garums",
 					 "en": "Length"},
 		  "preset": "textbox",
 		  "help_text": "Ja nepieciešams norādiet datu kolonas vertības garumu"
