@@ -1,9 +1,14 @@
 {% extends "package/resource_edit_base.html" %}
-{% import 'macros/form.html' as form %}
 
-{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
+{% import 'csvmetadata/form.html' as form %}
+
+
+
+{% block subtitle %}{{ h.resource_display_name(res) }}{% endblock %}
 
 {% block primary_content_inner %}
+
+  <!-- <script> window.onload = function(){alert("Hello!")} </script> -->
 
   {% set action = h.url_for(controller='ckanext.csvmetadata.plugin:ResourceCSVController', action='resource_csv', id=pkg.name, resource_id=res.id) %}
   {% set show_table = true %}
@@ -25,6 +30,7 @@
 
   <form method="post" action="{{ action }}" >
   {% for csv_header in csv_headers %}
+      <table>
       {# Ugly, will re-think it before this is finished #}
       {{ form.hidden("csv_headers", '\",\"'.join(csv_headers)) }}
       {% set csv_header_index = loop.index0 %}
@@ -43,6 +49,7 @@
           {% else %}
               {% set attrs={} %}
           {% endif %}    
+          <tr>
           {% if element_type in ["textarea", "input"] %}
               {% call form[element_type](name=element_id, id=element_id, label=label, value=value, is_required=required, attrs=attrs) %} {% endcall %}
           {% elif element_type == "select" %}
@@ -52,8 +59,10 @@
           {% else %}
               {% call form[element_type](name=element_id, id=element_id, label=label, is_required=required, attrs=attrs) %} {% endcall %}
           {% endif %}
+          </tr>
       {% endfor %}
-      <hr>
+      </table>
+      <hr><br>
   {% endfor %}
     <button class="btn btn-primary" type="submit">
       <i class="fa fa-cloud-upload"></i> 'Upload your CSVs' 
