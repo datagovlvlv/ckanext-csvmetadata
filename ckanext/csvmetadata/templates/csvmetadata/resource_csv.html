@@ -141,3 +141,25 @@
   {% endif %} #}
 
 {% endblock %}
+{%- block scripts %}
+  {{ super() }}
+  <script>
+  alert("Injected")
+  jQuery( document ).ready(function(){alert("Stting stff");})
+  //$('.control-label').each(function () {
+  //  alert("Setting stuff")
+  //  this.mouseenter(function(){
+  //  alert("Mouseenter");
+  //  $('body').append("<div id='hoveringTooltip' style='position:fixed;'></div>");
+  //  $('#hoveringTooltip').html("MY TOOLTIP TEXT GOES HERE");
+  //  $('#hoveringTooltip').css({
+  //      "top" : $(this).offset().top + 50;
+  //      "left" : $(this).offset().left + 50
+  //    });
+  //}});
+  //$('#myId').mouseleave(function(){
+  //  $('#hoveringTooltip').remove();
+  //});
+  //})
+  </script>
+{% endblock -%}
