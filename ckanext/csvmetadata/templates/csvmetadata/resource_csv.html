@@ -1,14 +1,10 @@
 {% extends "package/resource_edit_base.html" %}
-
 {% import 'csvmetadata/form.html' as form %}
+{% import 'macros/form.html' as ckan_form %}
 
-
-
-{% block subtitle %}{{ h.resource_display_name(res) }}{% endblock %}
+{% block subtitle %}CSV metadata - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block primary_content_inner %}
-
-  <!-- <script> window.onload = function(){alert("Hello!")} </script> -->
 
   {% set action = h.url_for(controller='ckanext.csvmetadata.plugin:ResourceCSVController', action='resource_csv', id=pkg.name, resource_id=res.id) %}
   {% set show_table = true %}
@@ -27,12 +23,12 @@
     {% endif %}
 
   {% else %}
-
   <form method="post" action="{{ action }}" >
+  {{ ckan_form.checkbox(name="csv_has_headers", id="csv_has_headers", label="CSV dati satur kolonu virsrakstus", attrs={"data-module":"csvmetadata"}) }}
+  {{ form.hidden("csv_headers", '\",\"'.join(csv_headers)) }}
+  <hr>
   {% for csv_header in csv_headers %}
       <table>
-      {# Ugly, will re-think it before this is finished #}
-      {{ form.hidden("csv_headers", '\",\"'.join(csv_headers)) }}
       {% set csv_header_index = loop.index0 %}
       {% for form_field in form_fields %}
           {% set element_type = form_field["preset"] %}
@@ -42,6 +38,7 @@
               {% set value="" %}
           {% endif %}
           {% set label = form_field["label"]["lv"] %}
+          {% set help_text = form_field["help_text"] %}
           {% set required = form_field["required"] %}
           {% set element_id = "{}-{}".format(csv_header_index, form_field["name"]) %}
           {% if form_field["disabled"] %}
@@ -51,13 +48,13 @@
           {% endif %}    
           <tr>
           {% if element_type in ["textarea", "input"] %}
-              {% call form[element_type](name=element_id, id=element_id, label=label, value=value, is_required=required, attrs=attrs) %} {% endcall %}
+              {% call form[element_type](name=element_id, label=label, value=value, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}
           {% elif element_type == "select" %}
               {# {% set selected=form_field["selected"] %} #}              
               {% set selected="string" %} 
-              {% call form[element_type](name=element_id, id=element_id, label=label, options=form_field["choices"], selected=selected, is_required=required, attrs=attrs) %} {% endcall %}
+              {% call form[element_type](name=element_id, label=label, options=form_field["choices"], selected=selected, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}
           {% else %}
-              {% call form[element_type](name=element_id, id=element_id, label=label, is_required=required, attrs=attrs) %} {% endcall %}
+              {% call form[element_type](name=element_id, label=label, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}
           {% endif %}
           </tr>
       {% endfor %}
@@ -65,7 +62,7 @@
       <hr><br>
   {% endfor %}
     <button class="btn btn-primary" type="submit">
-      <i class="fa fa-cloud-upload"></i> 'Upload your CSVs' 
+      <i class="icon-cloud-upload"></i> 'Upload your CSVs' 
     </button>
   </form>
 
@@ -141,25 +138,9 @@
   {% endif %} #}
 
 {% endblock %}
-{%- block scripts %}
-  {{ super() }}
-  <script>
-  alert("Injected")
-  jQuery( document ).ready(function(){alert("Stting stff");})
-  //$('.control-label').each(function () {
-  //  alert("Setting stuff")
-  //  this.mouseenter(function(){
-  //  alert("Mouseenter");
-  //  $('body').append("<div id='hoveringTooltip' style='position:fixed;'></div>");
-  //  $('#hoveringTooltip').html("MY TOOLTIP TEXT GOES HERE");
-  //  $('#hoveringTooltip').css({
-  //      "top" : $(this).offset().top + 50;
-  //      "left" : $(this).offset().left + 50
-  //    });
-  //}});
-  //$('#myId').mouseleave(function(){
-  //  $('#hoveringTooltip').remove();
-  //});
-  //})
-  </script>
-{% endblock -%}
+ 
+{% block scripts %}
+{{ super() }}
+{% resource 'csvmetadata/csvmetadata.js' %}
+{% resource 'csvmetadata/csvmetadata_info_popup.js' %}
+{% endblock %}
