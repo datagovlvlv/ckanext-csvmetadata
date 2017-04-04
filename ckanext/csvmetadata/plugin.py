@@ -194,6 +194,7 @@ class CSVMetadataPlugin(p.SingletonPlugin):
     #IConfigurer
     def update_config(self, config):
         toolkit.add_template_directory(config, 'templates')
+        toolkit.add_resource('fanstatic', 'csvmetadata')
 
     #IConfigurable
     def configure(self, config):
