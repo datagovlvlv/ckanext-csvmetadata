@@ -1,6 +1,6 @@
 {% ckan_extends %}
 
 {% block inner_primary_nav %}
+  {{ h.build_nav_icon('resource_csv', 'CSV metadata', id=pkg.name, resource_id=res.id) }}
   {{ super() }}
-  {{ h.build_nav_icon('resource_csv', _('CSV metadata'), id=pkg.name, resource_id=res.id) }}
 {% endblock %}
