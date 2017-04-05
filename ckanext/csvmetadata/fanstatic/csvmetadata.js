@@ -12,7 +12,7 @@ ckan.module('csvmetadata', function ($) {
             {
               $.each( $('[data-is-name="true"]'), 
                   function (i, element) {$(element).removeAttr("readonly"),
-                                         $(element).val("")} )
+                                   $(element).val( $(element).attr("data-default-value") ) } )
             }
             else if (check == true)
             {

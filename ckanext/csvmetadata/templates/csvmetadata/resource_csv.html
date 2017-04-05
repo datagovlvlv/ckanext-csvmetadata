@@ -32,6 +32,7 @@
   {% for csv_header in csv_headers %}
       <table>
       {% set csv_header_index = loop.index0 %}
+      {% set col_index = loop.index %}
       {% for form_field in form_fields %}
           {% set element_type = form_field["preset"] %}
           {% set label = form_field["label"]["lv"] %}
@@ -54,12 +55,14 @@
               {% elif form_field["name"] == "name" %}
                   {% set x = attrs.__setitem__("data-is-name", "true") %}
                   {% set x = attrs.__setitem__("data-header-value", value) %}
+                  {% set x = attrs.__setitem__("data-default-value", "col{}".format(col_index)) %}
               {% endif %}
           {% else %}
               {% if form_field["name"] == "name" %}
                   {% set value=csv_header %}
                   {% set x = attrs.__setitem__("data-is-name", "true") %}
                   {% set x = attrs.__setitem__("data-header-value", value) %}
+                  {% set x = attrs.__setitem__("data-default-value", "col{}".format(col_index)) %}
               {% elif form_field["datatype"] == "datatype" %}
                   {% set value="" %}
                   {% set selected="string" %}
