@@ -49,7 +49,7 @@ Example:
   <td>
   <div class="control-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
     <label class="control-label" style="display:inline;margin-bottom:0px" for="{{ id or name }}">{% if is_required %}{{ input_required() }} {% else %} &ensp; {% endif %}{{ label or name }}</label>
-    {% if help_text %} <button disabled data-module="csvmetadata-info-popup" class="btn" style="border-radius:50%;height:20px;width:20px;padding:unset;float:right;margin-right:10px;margin-left:10px" type=button><i style="vertical-align:middle;margin:0px auto;" class="icon-info"></i></button> {% endif %}
+    {% if help_text %} <button data-toggle="tooltip" title="{{help_text}}" class="btn" style="border-radius:50%;height:20px;width:20px;padding:unset;float:right;margin-right:10px;margin-left:10px" type=button><i style="vertical-align:middle;margin:0px auto;" class="icon-info"></i></button> {% endif %}
     </td><td>
     <div class="controls">
       <input style="margin-bottom:25px" id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
@@ -151,7 +151,7 @@ Example:
   <td>
   <div class="control-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
     <label class="control-label" style="display:inline" for="{{ for }}">{% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% else %} &ensp;{% endif %}{{ label or _('Custom') }}</label>
-    {% if help_text %} <button disabled data-module="csvmetadata-info-popup" data-module-help-text="{{help_text}}" class="btn" style="border-radius:50%;height:20px;width:20px;padding:unset;float:right;margin-right:10px;margin-left:10px" type=button><i style="vertical-align:middle;margin:0px auto;" class="icon-info"></i></button> {% endif %}
+    {% if help_text %} <button data-toggle="tooltip" title="{{help_text}}" class="btn" style="border-radius:50%;height:20px;width:20px;padding:unset;float:right;margin-right:10px;margin-left:10px" type=button><i style="vertical-align:middle;margin:0px auto;" class="icon-info"></i></button> {% endif %}
     </td><td>
     <div class="controls{{ " " ~ control_classes | join(' ') }}">
       {{ caller() }} {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %} {{ extra_html }}

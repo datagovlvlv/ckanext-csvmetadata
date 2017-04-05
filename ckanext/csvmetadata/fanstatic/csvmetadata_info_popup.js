@@ -2,20 +2,23 @@
 
 //window.onload = function(){alert("I AM MODULE FFS")}
 //console.log("FFS CAN YOU WORK FUCKER")
-jQuery( document ).ready(
+/*jQuery( document ).ready(
   function(){
    alert("Jquery accessible")
   }
-)
+)*/
 
+jQuery(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
 
-/*
-ckan.module('csvmetadata-info-popup', function($){
+/*ckan.module('csvmetadata-info-popup', function($){
   return {
     initialize: function () {
       console.log("I've been initialized for element: ", this.el);
-      alert("Injeeeected!")
+      this.el.popover({title: "",
+                       content: this.options.text,
+                       placement: 'left'});
     }
   }
-})
-*/
+}) */
