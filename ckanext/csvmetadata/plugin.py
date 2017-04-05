@@ -7,6 +7,7 @@ import logging
 import requests
 from StringIO import StringIO
 from collections import OrderedDict
+from csv_unicode import UnicodeReader
 from ast import literal_eval as l_eval
 
 
@@ -92,12 +93,25 @@ class ResourceCSVController(base.BaseController):
                 content = req.raw.read(csv_header_byte_limit+1)
                 if len(content) > csv_header_byte_limit:
                     pass #Noting that the response is too large
-                #Limiting the amount of CSV to be processed
-                sample = content[:csv_header_byte_limit]
 
                 #CSV encoding can be taken from Response object we get from requests.get
                 #which determines encoding from HTTP response headers
                 encoding = req.encoding
+
+                #Limiting the amount of CSV to be processed and storing it in unicode object
+                try:
+                    if content[:3] == '\xef\xbb\xbf':
+                        content = content[3:]
+                        raise LookupError() #fall-through
+                    elif content[:2] == '\xfe\xff': 
+                        content = content[2:]
+                        raise LookupError() #fall-through
+                    sample = content[:csv_header_byte_limit].decode(encoding.lower())
+                except LookupError:
+                    #encoding not found among Python decoders, fallback option is UTF8
+                    #or we fell through due to UTF-16/UTF-8 marker found
+                    sample = content[:csv_header_byte_limit].decode("utf-8")
+                    encoding = "utf-8"
 
                 #Now trying to deduce, what kind of CSV is this and if it's CSV at all
                 sniffer = csv.Sniffer()
@@ -109,10 +123,9 @@ class ResourceCSVController(base.BaseController):
                 else:
                     #Reading one line from sample
                     csv_headers_str = sample.splitlines()[0].strip()
-                    #Weird bug in Python CSV module - needs conversion like this
+                    csv_headers = UnicodeReader(StringIO(csv_headers_str), dialect=dialect, encoding=encoding).next()
                     delimiter = str(dialect.delimiter)
                     quotechar = str(dialect.quotechar)
-                    csv_headers = csv.reader([csv_headers_str], delimiter=delimiter, quotechar=quotechar).next()
                     csv_info["delimiter"] = delimiter
                     csv_info["quotechar"] = quotechar
                     csv_info["encoding"] = encoding
