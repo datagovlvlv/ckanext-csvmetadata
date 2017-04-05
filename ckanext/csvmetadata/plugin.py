@@ -81,7 +81,7 @@ class ResourceCSVController(base.BaseController):
     def get_csv_sample(self, csv_url):
         status = "ok"
         csv_headers = []
-        csv_info = {"delimiter":"", "encoding":"", "quotechar":""}
+        csv_info = {"delimiter":"", "encoding":"", "quoteChar":""}
         
         try:
             req = requests.get(csv_url, timeout=10, stream=True)
@@ -127,7 +127,7 @@ class ResourceCSVController(base.BaseController):
                     delimiter = str(dialect.delimiter)
                     quotechar = str(dialect.quotechar)
                     csv_info["delimiter"] = delimiter
-                    csv_info["quotechar"] = quotechar
+                    csv_info["quoteChar"] = quotechar
                     csv_info["encoding"] = encoding
             else:
                 status = "http_error_{}".format(req.status_code)
