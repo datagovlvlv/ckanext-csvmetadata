@@ -123,9 +123,9 @@ class ResourceCSVController(base.BaseController):
                 else:
                     #Reading one line from sample
                     csv_headers_str = sample.splitlines()[0].strip()
-                    csv_headers = UnicodeReader(StringIO(csv_headers_str), dialect=dialect, encoding=encoding).next()
                     delimiter = str(dialect.delimiter)
                     quotechar = str(dialect.quotechar)
+                    csv_headers = UnicodeReader(StringIO(csv_headers_str), delimiter=delimiter, quotechar=quotechar, encoding=encoding).next()
                     csv_info["delimiter"] = delimiter
                     csv_info["quoteChar"] = quotechar
                     csv_info["encoding"] = encoding
