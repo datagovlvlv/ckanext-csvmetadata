@@ -80,7 +80,7 @@ class ResourceCSVController(base.BaseController):
     def get_csv_sample(self, csv_url):
         status = "ok"
         csv_headers = []
-        csv_info = {"delimiter":"", "encoding":"TOFIX", "quotechar":""}
+        csv_info = {"delimiter":"", "encoding":"", "quotechar":""}
         
         try:
             req = requests.get(csv_url, timeout=10, stream=True)
@@ -94,6 +94,10 @@ class ResourceCSVController(base.BaseController):
                     pass #Noting that the response is too large
                 #Limiting the amount of CSV to be processed
                 sample = content[:csv_header_byte_limit]
+
+                #CSV encoding can be taken from Response object we get from requests.get
+                #which determines encoding from HTTP response headers
+                encoding = req.encoding
 
                 #Now trying to deduce, what kind of CSV is this and if it's CSV at all
                 sniffer = csv.Sniffer()
@@ -111,6 +115,7 @@ class ResourceCSVController(base.BaseController):
                     csv_headers = csv.reader([csv_headers_str], delimiter=delimiter, quotechar=quotechar).next()
                     csv_info["delimiter"] = delimiter
                     csv_info["quotechar"] = quotechar
+                    csv_info["encoding"] = encoding
             else:
                 status = "http_error_{}".format(req.status_code)
         return status, csv_headers, csv_info
