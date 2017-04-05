@@ -39,7 +39,7 @@ csv_header_byte_limit = 4096
 #class DatastoreException(Exception):
 #    pass
 
-def check_json_file(path, file_desc="CSVMetadata config file"):
+def check_json_file(path, file_desc="CSVMetadata table config file"):
     if not os.path.isfile(path):
         raise Exception(
              '{} not found at {}'
@@ -130,8 +130,14 @@ class ResourceCSVController(base.BaseController):
         return l_eval(data_str)
 
     def form_to_csvw(self, form_data):
+        """
+           Converts data from CSV metadata form values to CSVW dictionary.
+           The form data comes as HTML form data through a POST request
+           so there is POST-specific processing, too.
+        """
         #Assumes info about current resource is in toolkit.c.pkg_dict
         #and info about current package is in toolkit.c.resource
+        #The info is placed there by resource_csv controller (in this same class)
 
         #csv headers and csv info dict are passed along with form data, removing them from the form data
         csv_info = self.eval_remove_from_form(form_data, "csv_info")
@@ -149,7 +155,6 @@ class ResourceCSVController(base.BaseController):
         csvw_json_data["dialect"] = csv_info
         csvw_json_data["dc:title"] = toolkit.c.pkg_dict["title"]
         csvw_json_data["dcat:keyword"] = [tag["name"] for tag in toolkit.c.pkg_dict["tags"]] if "tags" in toolkit.c.pkg_dict else []
-        print(org_data["title"])
         csvw_json_data["dc:publisher"] = {"schema:name":org_data["title"],
                                           "schema:url":org_url}
         csvw_json_data["dc:license"] = {"@id":toolkit.c.pkg_dict["license_url"]}
@@ -180,7 +185,7 @@ class ResourceCSVController(base.BaseController):
         checkbox_ids = [element["name"] for element in form_schema["form_fields"] if element["preset"] == "checkbox"]
         for column in schema["columns"]:
             for checkbox_id in checkbox_ids:
-                column[checkbox_id] =  checkbox_id in column.keys()
+                column[checkbox_id] = checkbox_id in column.keys()
 
         #Now, re-formatting the resulting schema dictionary to conform with the specification
         for column in schema["columns"]:
@@ -199,7 +204,7 @@ class ResourceCSVController(base.BaseController):
 
         #Adding created schema to CSVW dictionary
         csvw_json_data["tableSchema"] = schema
-        #Turn OrderedDict into JSON
+        #Turn OrderedDict into JSON string
         csvw_json_string_data = json.dumps(csvw_json_data, indent=2)
         return csvw_json_string_data
 
@@ -216,7 +221,6 @@ class ResourceCSVController(base.BaseController):
             if self.filename_for_url(resource["url"]) == json_filename:
                 json_url = resource["url"]
                 json_res_id = resource["id"]
-                print(json_res_id)
         return json_url, json_res_id
 
     def filename_for_url(self, url):
@@ -229,10 +233,11 @@ class ResourceCSVController(base.BaseController):
     def make_json_filename(self, resource_filename):
         """
             Defines how the JSON file filename is constructed. 
+            Changing this format will change both creation of new files 
+            and matching to old files, Accordingly, it will 
+            break backwards compatibility unless code that 
+            relies on this function is modified accordingly.
         """
-        #Changing this will change both creation of new files and matching to old files,
-        #so changing this format will break backwards compatibility 
-        #unless code that relies on is modified accordingly.
         return "{}_metadata.json".format(resource_filename)
 
     def resource_csv(self, id, resource_id):
@@ -267,7 +272,6 @@ class ResourceCSVController(base.BaseController):
             #Loading data from form
             form_data = p.toolkit.request.POST
             csvw_string = self.form_to_csvw(dict(form_data))
-            print(csvw_string)
             io_object = StringIO(csvw_string)
             
             filename = self.make_json_filename(resource_filename)
@@ -282,7 +286,7 @@ class ResourceCSVController(base.BaseController):
                 ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
             else:
                 print("Creating resource")
-                #ckan_api.action.resource_create(package_id=id, name=resource_name, url="", upload=io_object)
+                ckan_api.action.resource_create(package_id=id, name=resource_name, url="", upload=io_object)
             #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
             core_helpers.redirect_to(
                 controller='package',
@@ -305,7 +309,6 @@ class ResourceCSVController(base.BaseController):
         #Getting CSV from the resource url
         status, csv_headers, csv_info = self.get_csv_sample(resource_url)
 
-        print(values)
         return base.render('csvmetadata/resource_csv.html',
                            extra_vars={'status':status, 
                                        'csv_headers':csv_headers, 
