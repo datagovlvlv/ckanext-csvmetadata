@@ -34,26 +34,39 @@
       {% set csv_header_index = loop.index0 %}
       {% for form_field in form_fields %}
           {% set element_type = form_field["preset"] %}
-          {% if form_field["name"] == "name" %}
-              {% set value=csv_header %}
-          {% else %}
-              {% set value="" %}
-          {% endif %}
           {% set label = form_field["label"]["lv"] %}
           {% set help_text = form_field["help_text"] %}
           {% set required = form_field["required"] %}
           {% set element_id = "{}-{}".format(csv_header_index, form_field["name"]) %}
-          {% if form_field["disabled"] %}
-              {% set attrs={"readonly":"readonly"} %}
+          {% set attrs = {} %}
+          {% set selected="" %}
+          {% set value="" %}
+          {% if element_id in values %}
+              {% set value=values[element_id] %}
+              {% if element_type == "checkbox" %}
+                  {# hack because jinja cannot into updating dictionaries #}
+                  {% set x = attrs.__setitem__("checked", "") %}
+              {% elif element_type == "select" %}
+                  {% set selected=value %} 
+              {% endif %}
           {% else %}
-              {% set attrs={} %}
+              {% if form_field["name"] == "name" %}
+                  {% set value=csv_header %}
+              {% elif form_field["datatype"] == "datatype" %}
+                  {% set value="" %}
+                  {% set selected="string" %}
+              {% else %}
+                  {% set value="" %}
+                  {% set selected="" %}
+              {% endif %}
+          {% endif %}
+          {% if form_field["disabled"] %}
+              {% set x = attrs.__setitem__("readonly", "") %}
           {% endif %}    
           <tr>
           {% if element_type in ["textarea", "input"] %}
               {% call form[element_type](name=element_id, label=label, value=value, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}
           {% elif element_type == "select" %}
-              {# {% set selected=form_field["selected"] %} #}              
-              {% set selected="string" %} 
               {% call form[element_type](name=element_id, label=label, options=form_field["choices"], selected=selected, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}
           {% else %}
               {% call form[element_type](name=element_id, label=label, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}
