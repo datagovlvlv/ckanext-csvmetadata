@@ -235,7 +235,8 @@ class ResourceCSVController(base.BaseController):
             if foreign_keys:
                 column["foreignKeys"] = [{ "reference" : {"resource":resource, "columnReference":columnReference}}]
             else:
-                column["foreignKeys"] = []
+                #column["foreignKeys"] = []
+                pass 
 
         #Adding created schema to CSVW dictionary
         csvw_json_data["tableSchema"] = schema
