@@ -25,7 +25,9 @@
   {% else %}
   <form method="post" action="{{ action }}" >
   {{ ckan_form.checkbox(name="csv_has_headers", id="csv_has_headers", label="CSV dati satur kolonu virsrakstus", attrs={"data-module":"csvmetadata"}) }}
-  {{ form.hidden("csv_headers", '\",\"'.join(csv_headers)) }}
+  {# str() function seems to be unavailable for templates #}
+  {{ form.hidden("csv_headers", csv_headers.__str__()) }}
+  {{ form.hidden("csv_info", csv_info) }}
   <hr>
   {% for csv_header in csv_headers %}
       <table>
@@ -42,7 +44,7 @@
           {% set required = form_field["required"] %}
           {% set element_id = "{}-{}".format(csv_header_index, form_field["name"]) %}
           {% if form_field["disabled"] %}
-              {% set attrs={"disabled":""} %}
+              {% set attrs={"readonly":"readonly"} %}
           {% else %}
               {% set attrs={} %}
           {% endif %}    
