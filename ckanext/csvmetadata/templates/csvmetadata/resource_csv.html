@@ -18,7 +18,7 @@
       <h1> {{ _("Wrong file format or internal structure!") }} </h1> 
       <h3> {{ _("'CSV metadata' works with CSV files that have CSV headers") }} </h3>
     {% elif status.startswith("http_error_") %}
-      {% set error_code=status[len("http_error_"):] %}
+      {% set error_code=status[11:] %}
       <h1> {{ _("HTTP error, code:") }} {{error_code}} </h1>
     {% endif %}
 
