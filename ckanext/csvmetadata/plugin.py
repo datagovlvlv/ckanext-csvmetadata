@@ -330,6 +330,8 @@ class ResourceCSVController(base.BaseController):
             resource_name = filename
             
             _, json_resource_id = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
+            print(json_resource_id)
+            print(_)
             if json_resource_id:
                 print("Updating resource")
                 ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
