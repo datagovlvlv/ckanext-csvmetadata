@@ -24,7 +24,7 @@
 
   {% else %}
   <form method="post" action="{{ action }}" >
-  {{ ckan_form.checkbox(name="csv_has_headers", id="csv_has_headers", label="CSV dati satur kolonu virsrakstus", attrs={"data-module":"csvmetadata"}) }}
+  {{ ckan_form.checkbox(name="csv_has_headers", id="csv_has_headers", label="CSV dati satur kolonu virsrakstus", attrs={"data-module":"csvmetadata", "checked":""}) }}
   {# str() function seems to be unavailable for templates #}
   {{ form.hidden("csv_headers", csv_headers.__str__()) }}
   {{ form.hidden("csv_info", csv_info) }}
@@ -41,6 +41,9 @@
           {% set attrs = {} %}
           {% set selected="" %}
           {% set value="" %}
+          {% if form_field["disabled"] %}
+              {% set x = attrs.__setitem__("readonly", "") %}
+          {% endif %}    
           {% if element_id in values %}
               {% set value=values[element_id] %}
               {% if element_type == "checkbox" %}
@@ -48,10 +51,15 @@
                   {% set x = attrs.__setitem__("checked", "") %}
               {% elif element_type == "select" %}
                   {% set selected=value %} 
+              {% elif form_field["name"] == "name" %}
+                  {% set x = attrs.__setitem__("data-is-name", "true") %}
+                  {% set x = attrs.__setitem__("data-header-value", value) %}
               {% endif %}
           {% else %}
               {% if form_field["name"] == "name" %}
                   {% set value=csv_header %}
+                  {% set x = attrs.__setitem__("data-is-name", "true") %}
+                  {% set x = attrs.__setitem__("data-header-value", value) %}
               {% elif form_field["datatype"] == "datatype" %}
                   {% set value="" %}
                   {% set selected="string" %}
@@ -60,9 +68,6 @@
                   {% set selected="" %}
               {% endif %}
           {% endif %}
-          {% if form_field["disabled"] %}
-              {% set x = attrs.__setitem__("readonly", "") %}
-          {% endif %}    
           <tr>
           {% if element_type in ["textarea", "input"] %}
               {% call form[element_type](name=element_id, label=label, value=value, is_required=required, attrs=attrs, help_text=help_text) %} {% endcall %}

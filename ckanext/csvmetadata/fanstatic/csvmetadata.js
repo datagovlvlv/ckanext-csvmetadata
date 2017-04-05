@@ -6,8 +6,22 @@
 ckan.module('csvmetadata', function ($) {
   return {
     initialize: function () {
-      console.log("I've been initialized for element: ", this.el);
-      //alert("Injeeeected!")
+      this.el.change(function () {
+            var check = $(this).prop("checked");
+            if (check == false)
+            {
+              $.each( $('[data-is-name="true"]'), 
+                  function (i, element) {$(element).removeAttr("readonly"),
+                                         $(element).val("")} )
+            }
+            else if (check == true)
+            {
+              $.each($('[data-is-name="true"]'), 
+                  function(i, element){
+                      $(element).attr("readonly", ""),
+                      $(element).val( $(element).attr("data-header-value") ) } )
+            }
+        });
     }
   };
 });
