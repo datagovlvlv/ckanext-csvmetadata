@@ -9,7 +9,7 @@
   {% set action = h.url_for(controller='ckanext.csvmetadata.plugin:ResourceCSVController', action='resource_csv', id=pkg.name, resource_id=res.id) %}
   {% set show_table = true %}
   {% set form_fields = schema["form_fields"] %}
-  
+
   {% if status != "ok" %}
     {% if status == "url_fail" %}
       <h1> {{ _("Can't download source file!") }} </h1> 
@@ -19,7 +19,7 @@
       <h3> {{ _("'CSV metadata' works with CSV files that have CSV headers") }} </h3>
     {% elif status.startswith("http_error_") %}
       {% set error_code=status[11:] %}
-      <h1> {{ _("HTTP error, code:") }} {{error_code}} </h1>
+      <h1> {{ _("HTTP error while downloading resource, code:") }} {{error_code}} </h1>
     {% endif %}
 
   {% else %}
