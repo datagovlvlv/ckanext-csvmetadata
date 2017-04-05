@@ -180,7 +180,7 @@ class ResourceCSVController(base.BaseController):
 
         #getting data about organization
         org_data = toolkit.c.pkg_dict["organization"]
-        org_url = "TOFIX"
+        org_url = "{}/organization/{}".format(ckan_site_url, org_data["name"])
 
         #Dictionary to store CSVW data
         csvw_json_data = OrderedDict()
