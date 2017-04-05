@@ -307,7 +307,7 @@ class ResourceCSVController(base.BaseController):
         if toolkit.request.method == 'POST':
             #Loading data from form
             form_data = p.toolkit.request.POST
-            csvw_string = self.form_to_csvw(dict(form_data))
+            csvw_string = self.form_to_csvw(form_data)
             io_object = StringIO(csvw_string)
             
             filename = self.make_json_filename(resource_filename)
