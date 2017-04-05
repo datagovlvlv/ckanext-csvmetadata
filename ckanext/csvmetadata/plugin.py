@@ -30,6 +30,10 @@ _get_or_bust = logic.get_or_bust
 #A global that stores form schema path
 form_schema_path = None
 
+#A global that stores CKAN site url
+ckan_site_url = None
+
+#A limit of CSV file size to be processed in order to get headers
 csv_header_byte_limit = 4096
 
 #class DatastoreException(Exception):
@@ -317,6 +321,8 @@ class CSVMetadataPlugin(p.SingletonPlugin):
 
     #IConfigurable
     def configure(self, config):
+        global ckan_site_url
+
         self.config = config
 
         for config_option in ('ckan.site_url', ):
@@ -324,7 +330,7 @@ class CSVMetadataPlugin(p.SingletonPlugin):
                 raise Exception(
                     'Config option `{0}` must be set to use CSVMetadata.'
                     .format(config_option))
-
+        ckan_site_url = config.get('ckan.site_url')
         plugin_path = os.path.dirname(__file__)
         self.form_schema_path = os.path.join(plugin_path, "form_schema.json")
         check_json_file(self.form_schema_path) #Will try to open and validate file at the path
