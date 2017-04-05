@@ -129,6 +129,41 @@ class ResourceCSVController(base.BaseController):
         data_str = form_data.pop(data_name)
         return l_eval(data_str)
 
+    def csvw_to_form(self, csvw_dict):
+        """
+           Converts data from CSVW dictionary to CSV metadata form values.
+           The resulting data is used to pre-fill the CSV metadata form 
+           if JSON file with CSVW description already exists for the resource selected.
+        """
+        form_values = {}
+
+        column_info = csvw_dict["tableSchema"]["columns"]
+        for i, column in enumerate(column_info):
+            #Datatype is a separate dict inside, processing it
+            datatype = column["datatype"]["base"]
+            length = column["datatype"]["length"]
+            column.pop("datatype")
+            form_values["{}-datatype".format(i)] = datatype
+            form_values["{}-length".format(i)] = length
+            #foreignKeys is also a separate dict
+            if "foreignKeys" in column and column["foreignKeys"]:
+                form_values["{}-foreignKeys".format(i)] = True
+                foreignKeys = column.pop("foreignKeys")
+                resource = foreignKeys[0]["reference"]["resource"]
+                columnReference = foreignKeys[0]["reference"]["columnReference"]
+                form_values["{}-resource".format(i)] = resource
+                form_values["{}-columnReference".format(i)] = columnReference
+            #All the other keys are mapped directly to the dictionary
+            for key in column.keys():
+                if column[key] is False:
+                    #This is a checkbox value
+                    #It's better left unset to conform to HTML form POST format
+                    column.pop(key)
+                else:
+                    #Any other values, can be processed in template
+                    form_values["{}-{}".format(i, key)] = column[key]
+        return form_values            
+
     def form_to_csvw(self, form_data):
         """
            Converts data from CSV metadata form values to CSVW dictionary.
@@ -296,14 +331,13 @@ class ResourceCSVController(base.BaseController):
 
         #POST request processing code didn't continue, assuming GET method
         json_url, _ = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
+        values = {}
         if json_url:
             #Some kind of JSON URL is found, let's fetch it and get CSV header descriptions
-            values = {}
             try:
                 json_dict = self.fetch_json_return_values(json_url)
-                values = json_dict["tableSchema"]["columns"]
-            except Exception as e:
-                import pdb; pdb.set_trace()
+                values = self.csvw_to_form(json_dict)
+            except KeyboardInterrupt as e:
                 pass #JSON is either unfetchable or badly constructed, so we won't use it
         
         #Getting CSV from the resource url
