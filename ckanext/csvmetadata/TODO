@@ -1,0 +1,20 @@
+class-info-sign icon for help tooltip
+Form template - determining text label translation language
+Fix form tab index to prevent buttons from being activated
+Take CSV filename without extension
+Do not save non-checked checkboxes
+Order of elements in column description
+Move save metadata button to right
+Save metadata
+Try template engine mechanism to show tab depending on CSV type
+Change icon to table icon
+remove metadata save icon
+Bigger description field
+hr line thickness
+Export styles to .css document
+Take schema localization data from scheming
+JSON help text translation
+Do not shift fields
+Translate HTTP error code in template
+Encoding doesn't change
+bug not creating the JSON the first time itš created
