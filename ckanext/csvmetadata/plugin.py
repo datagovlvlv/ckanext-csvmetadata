@@ -410,7 +410,7 @@ class CSVMetadataPlugin(p.SingletonPlugin):
         m.connect(
             'resource_csv', '/dataset/{id}/resource_csv/{resource_id}',
             controller='ckanext.csvmetadata.plugin:ResourceCSVController',
-            action='resource_csv', ckan_icon='cloud-upload')
+            action='resource_csv', ckan_icon='table')
         return m
 
     #ITemplateHelpers
