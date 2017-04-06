@@ -131,6 +131,12 @@ class ResourceCSVController(base.BaseController):
                     csv_info["encoding"] = encoding
             else:
                 status = "http_error_{}".format(req.status_code)
+
+        #Autogenerating CSV header fields in case  some of them are empty
+        for i, header in enumerate(csv_headers):
+            if not header:
+                csv_headers[i] = "col{}".format(i)
+
         return status, csv_headers, csv_info
 
     def fetch_json_return_values(self, json_url):
