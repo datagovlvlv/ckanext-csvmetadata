@@ -25,9 +25,6 @@ import ckan.plugins.toolkit as toolkit
 from ckan.common import _
 
 log = logging.getLogger(__name__)
-_get_or_bust = logic.get_or_bust
-
-
 
 #A global that stores form schema path
 form_schema_path = None
@@ -197,6 +194,8 @@ class ResourceCSVController(base.BaseController):
         #csv headers and csv info dict are passed along with form data, removing them from the form data
         csv_info = self.eval_remove_from_form(form_data, "csv_info")
         csv_headers = self.eval_remove_from_form(form_data, "csv_headers")
+        
+        form_data.pop("csv_has_headers")
 
         #getting data about organization
         org_data = toolkit.c.pkg_dict["organization"]
