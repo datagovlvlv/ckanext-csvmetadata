@@ -3,6 +3,10 @@
 // being taken, and disables some confusing and bad JavaScript features.
 "use strict";
 
+jQuery(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+
 ckan.module('csvmetadata', function ($) {
   return {
     initialize: function () {
