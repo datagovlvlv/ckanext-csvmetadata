@@ -35,8 +35,8 @@
       {% set col_index = loop.index %}
       {% for form_field in form_fields %}
           {% set element_type = form_field["preset"] %}
-          {% set label = form_field["label"]["lv"] %}
-          {% set help_text = form_field["help_text"] %}
+          {% set label = h.csvmetadata_language_text(form_field["label"]) %}
+          {% set help_text = h.csvmetadata_language_text(form_field["help_text"]) %}
           {% set required = form_field["required"] %}
           {% set element_id = "{}-{}".format(csv_header_index, form_field["name"]) %}
           {% set attrs = {} %}

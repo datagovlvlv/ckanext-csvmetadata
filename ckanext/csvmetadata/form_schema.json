@@ -7,21 +7,24 @@
 		  "required": true,
 		  "disabled": true,
 		  "preset": "textbox",
-		  "help_text": "Datu kolonas nosaukums"
+		  "help_text": { "lv": "Datu kolonas nosaukums",
+					 "en": "Data column name"}
 		}, 
 		{ "field_name": "titles",
 		  "label": { "lv": "Virsraksts",
 					 "en": "Title"},
 		  "required": true,
 		  "preset": "textbox",
-		  "help_text": "Datu kolonas virsraksts"
+		  "help_text": { "lv": "Datu kolonas virsraksts",
+					 "en": "Data column title"}
 		}, 
 		{ "field_name": "dc:description",
 		  "label": { "lv": "Apraksts",
 					 "en": "Description"},
 		  "required": true,
 		  "preset": "textarea",
-		  "help_text": "Datu kolonas apraksts"
+		  "help_text": { "lv": "Datu kolonas apraksts",
+					 "en": "Data column description"}
 		}, 
 		{ "field_name": "datatype",
 		  "label": { "lv": "Datu tips",
@@ -66,45 +69,52 @@
 				"label": "dateTime"
 				}
 			],
-		  "help_text": "Izvēlieties atbilstošu datu tipu datu kolonai"	
+		  "help_text": { "lv": "Izvēlieties atbilstošu datu tipu datu kolonai",
+					 "en": "Choose appropriate datatype for column"}
 		}, 
 		{ "field_name": "length",
 		  "label": { "lv": "Garums",
 					 "en": "Length"},
 		  "preset": "textbox",
-		  "help_text": "Ja nepieciešams norādiet datu kolonas vertības garumu"
+		  "help_text": { "lv": "Ja nepieciešams norādiet datu kolonas vertības garumu",
+					 "en": "If necessary, enter column value length"}
 		},
 		{ "field_name": "required",
 		  "label": { "lv": "Obligāts",
 					 "en": "Required"},
 		  "preset": "checkbox",
-		  "help_text": "Ja nepieciešams norādiet vai datu kolonas vertība ir obligāta"
+		  "help_text": { "lv": "Ja nepieciešams norādiet vai datu kolonas vertība ir obligāta",
+					 "en": "If necessary, mark if the data column is required"}
 		}, 
 		{ "field_name": "primaryKey",
 		  "label": { "lv": "Primārā atslēga",
 					 "en": "Primary key"},
 		  "preset": "checkbox",
-		  "help_text": "Ja nepieciešams norādiet vai datu kolona ir primārā atslēga"
+		  "help_text": { "lv": "Ja nepieciešams norādiet vai datu kolona ir primārā atslēga",
+					 "en": "If necessary, mark the column as a primary key"}
 		}, 
 		{ "field_name": "foreignKeys",
 		  "label": { "lv": "Sekundārā atslēga",
 					 "en": "Foreign key"},
 		  "preset": "checkbox",
-		  "help_text": "Ja nepieciešams norādiet vai datu kolona ir sekundārā atslēga. Ja jūs izvēlēsieties šo opciju, Jums būs jānorāda references tabula un datu kolona"
+		  "help_text": { "lv": "Ja nepieciešams norādiet vai datu kolona ir sekundārā atslēga. Ja jūs izvēlēsieties šo opciju, Jums būs jānorāda references tabula un datu kolona",
+					 "en": "If necessary, mark the column as foreign key. You'll need to provide URL to the table referenced, as well as column name"}
 		}, 
 		{ "field_name": "resource",
 		  "label": { "lv": "References URL",
 					 "en": "Reference URL"},
 		  "required": true,
 		  "preset": "textbox",
-		  "help_text": "Sekondārās atslēgas references tabula tīmekļī piem. http://www.example.com/ForeignTable.csv"
+		  "help_text": { "lv": "Sekondārās atslēgas references tabula tīmekļī piem. http://www.example.com/ForeignTable.csv",
+					 "en": "Foreign key reference table URL, for example: http://www.example.com/ForeignTable.csv"}
 		}, 
 		{ "field_name": "columnReference",
 		  "label": { "lv": "References datu kolona",
 					 "en": "Reference column"},
 		  "required": true,
 		  "preset": "textbox",
-		  "help_text": "Sekondārās atslēgas references tabulas datu kolonas nosaukums"
+		  "help_text": { "lv": "Sekondārās atslēgas references tabulas datu kolonas nosaukums",
+					 "en": "Foreign key reference table data column name"}
 		}
 	]	
 }

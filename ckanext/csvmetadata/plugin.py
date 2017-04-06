@@ -9,6 +9,7 @@ from StringIO import StringIO
 from collections import OrderedDict
 from csv_unicode import UnicodeReader
 from ast import literal_eval as l_eval
+from helpers import csvmetadata_language_text
 
 
 from ckanapi import LocalCKAN
@@ -377,6 +378,7 @@ class CSVMetadataPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IRoutes, inherit=True)
+    p.implements(p.ITemplateHelpers)
 
     #IConfigurer
     def update_config(self, config):
@@ -408,3 +410,7 @@ class CSVMetadataPlugin(p.SingletonPlugin):
             controller='ckanext.csvmetadata.plugin:ResourceCSVController',
             action='resource_csv', ckan_icon='cloud-upload')
         return m
+
+    #ITemplateHelpers
+    def get_helpers(self):
+        return {'csvmetadata_language_text': csvmetadata_language_text}
