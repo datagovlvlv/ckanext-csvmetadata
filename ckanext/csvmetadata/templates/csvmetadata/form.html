@@ -22,7 +22,7 @@ Examples:
   {%- set extra_html = caller() if caller -%}
 
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required, help_text=help_text) %}
-  <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
+  <input style="max-width:220px" id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
   {% endcall %}
 {% endmacro %}
 
@@ -46,11 +46,11 @@ Example:
 #}
 {% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[], attrs={}, is_required=false, help_text="Yes") %}
   {%- set extra_html = caller() if caller -%}
-  <td>
+  <td style="max-width:400px; min-width:230px">
   <div class="control-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
     <label class="control-label" style="display:inline;margin-bottom:0px" for="{{ id or name }}">{% if is_required %}{{ input_required() }} {% else %} &ensp; {% endif %}{{ label or name }}</label>
     {% if help_text %} <div data-toggle="tooltip" title="{{help_text}}" class="icon-info-sign" style="font-size:18pt;border-radius:50%;height:20px;width:20px;float:right;margin-right:10px;margin-left:10px"></div> {% endif %}
-    </td><td>
+  </td><td style="width:70%">
     <div class="controls">
       <input style="margin-bottom:25px" id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
       {% if error and error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
@@ -89,7 +89,7 @@ Examples:
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required, help_text=help_text) %}
-    <select id="{{ id or name }}" name="{{ name }}" {{ attributes(attrs) }}>
+    <select style="max-width:220px" id="{{ id or name }}" name="{{ name }}" {{ attributes(attrs) }}>
       {% for option in options %}
         <option value="{{ option.value }}"{% if option.value == selected %} selected{% endif %}>{{ option.text or option.value }}</option>
       {% endfor %}
@@ -116,13 +116,13 @@ Examples:
   {{ form.textarea('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 #}
-{% macro textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}, is_required=false, rows=3, cols=16, help_text="") %}
+{% macro textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}, is_required=false, rows=4, cols=30, help_text="") %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required, help_text=help_text) %}
-    <textarea id="{{ id or name }}" name="{{ name }}" cols="{{ cols }}" rows="{{ rows }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+    <textarea style="width:80%" id="{{ id or name }}" name="{{ name }}" cols="{{ cols }}" rows="{{ rows }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
   {% endcall %}
 {% endmacro %}
 
@@ -146,13 +146,15 @@ Example:
     <input id="field" type="text" name="{{ name }}" value="{{ value | empty_and_escape }}" />
   {% endcall %}
 
+{{
+
 #}
 {% macro input_block(for, label="", error="", classes=[], control_classes=[], extra_html="", is_required=false, help_text="Yes") %}
-  <td>
+  <td style="max-width:400px; min-width:230px">
   <div class="control-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
     <label class="control-label" style="display:inline" for="{{ for }}">{% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% else %} &ensp;{% endif %}{{ label or _('Custom') }}</label>
     {% if help_text %} <div data-toggle="tooltip" title="{{help_text}}" class="icon-info-sign" style="font-size:18pt;border-radius:50%;height:20px;width:20px;float:right;margin-right:10px;margin-left:10px"></div> {% endif %}
-    </td><td>
+  </td style="width:70%"><td>
     <div class="controls{{ " " ~ control_classes | join(' ') }}">
       {{ caller() }} {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %} {{ extra_html }}
     </div>
