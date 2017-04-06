@@ -287,13 +287,16 @@ class ResourceCSVController(base.BaseController):
 
     def make_json_filename(self, resource_filename):
         """
-            Defines how the JSON file filename is constructed. 
+            Defines how the JSON file filename is constructed.
+            This is a fallback method for determining which JSON belongs to which CSVW.
             Changing this format will change both creation of new files 
-            and matching to old files, Accordingly, it will 
+            and matching to old files, Accordingly, it can
             break backwards compatibility unless code that 
             relies on this function is modified accordingly.
         """
-        return "{}_metadata.json".format(resource_filename)
+        filename_no_ext = resource_filename.rsplit('.', 1)[0]
+        print(filename_no_ext)
+        return "{}_metadata.json".format(filename_no_ext)
 
     def resource_csv(self, id, resource_id):
         """
