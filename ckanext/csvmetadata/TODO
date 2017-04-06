@@ -1,3 +1,5 @@
+if header field is empty, autogenerate that single field
+internationalization
 class-info-sign icon for help tooltip
 Form template - determining text label translation language
 Fix form tab index to prevent buttons from being activated
