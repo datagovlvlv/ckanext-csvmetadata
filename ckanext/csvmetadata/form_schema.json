@@ -30,6 +30,10 @@
 		  "preset": "select",
 			"choices": [
 				{
+				"value": "string",
+				"label": "string"
+				},
+				{
 				"value": "anyURI",
 				"label": "anyURI"
 				},
@@ -48,10 +52,6 @@
 				{
 				"value": "float",
 				"label": "float"
-				},
-				{
-				"value": "string",
-				"label": "string"
 				},
 				{
 				"value": "boolean",
