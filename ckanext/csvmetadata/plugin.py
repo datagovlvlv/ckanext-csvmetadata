@@ -239,7 +239,8 @@ class ResourceCSVController(base.BaseController):
         checkbox_ids = [element["name"] for element in form_schema["form_fields"] if element["preset"] == "checkbox"]
         for column in schema["columns"]:
             for checkbox_id in checkbox_ids:
-                column[checkbox_id] = checkbox_id in column.keys()
+                if checkbox_id in column.keys():
+                    column[checkbox_id] = True 
 
         #Now, re-formatting the resulting schema dictionary to conform with the specification
         for column in schema["columns"]:
@@ -250,11 +251,10 @@ class ResourceCSVController(base.BaseController):
             #Now need to process primary and secondary keys
             resource = column.pop("resource")
             columnReference = column.pop("columnReference")
-            foreign_keys = column.pop("foreignKeys")
-            if foreign_keys:
+            if "foreignKeys" in column:
                 column["foreignKeys"] = [{ "reference" : {"resource":resource, "columnReference":columnReference}}]
+                column.pop("foreignKeys")
             else:
-                #column["foreignKeys"] = []
                 pass 
 
         #Adding created schema to CSVW dictionary
