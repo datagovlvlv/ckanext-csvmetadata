@@ -23,7 +23,7 @@
     {% endif %}
 
   {% else %}
-  <form method="post" action="{{ action }}" >
+  <form method="post" action="{{ action }}" data-module="csvmetadata-required" >
   {{ ckan_form.checkbox(name="csv_has_headers", id="csv_has_headers", label="CSV dati satur kolonu virsrakstus", attrs={"data-module":"csvmetadata", "checked":""}) }}
   {# str() function seems to be unavailable for templates #}
   {{ form.hidden("csv_headers", csv_headers.__str__()) }}
@@ -44,6 +44,9 @@
           {% set value="" %}
           {% if form_field["disabled"] %}
               {% set x = attrs.__setitem__("readonly", "") %}
+          {% endif %}    
+          {% if required %}
+              {% set x = attrs.__setitem__("data-required", "true") %}
           {% endif %}    
           {% if element_id in values %}
               {% set value=values[element_id] %}
@@ -94,5 +97,5 @@
 {% block scripts %}
 {{ super() }}
 {% resource 'csvmetadata/csvmetadata.js' %}
-{% resource 'csvmetadata/csvmetadata_info_popup.js' %}
+{% resource 'csvmetadata/csvmetadata_required.js' %}
 {% endblock %}
