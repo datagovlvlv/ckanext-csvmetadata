@@ -342,10 +342,10 @@ class ResourceCSVController(base.BaseController):
             print(json_resource_id)
             print(_)
             if json_resource_id:
-                print("Updating resource")
+                log.info("Updating CSVW resource")
                 ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
             else:
-                print("Creating resource")
+                log.info("Creating a new CSVW resource")
                 ckan_api.action.resource_create(package_id=id, name=resource_name, url="", upload=io_object)
             #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
             core_helpers.redirect_to(
