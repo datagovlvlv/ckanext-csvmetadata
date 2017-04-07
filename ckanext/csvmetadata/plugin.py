@@ -209,18 +209,18 @@ class ResourceCSVController(base.BaseController):
         csvw_json_data["dialect"] = csv_info
         csvw_json_data["dc:title"] = toolkit.c.pkg_dict["title"]
         csvw_json_data["dcat:keyword"] = [tag["name"] for tag in toolkit.c.pkg_dict["tags"]] if "tags" in toolkit.c.pkg_dict else []
-        csvw_json_data["dc:publisher"] = {"schema:name":org_data["title"],
-                                          "schema:url":org_url}
+        csvw_json_data["dc:publisher"] = OrderedDict( (("schema:name", org_data["title"]),
+                                          ( "schema:url", org_url)) )
         csvw_json_data["dc:license"] = {"@id":toolkit.c.pkg_dict["license_url"]}
-        csvw_json_data["dc:issued"] = {"@value":toolkit.c.resource["created"].split("T")[0], "@type":"xsd:date"}
+        csvw_json_data["dc:issued"] = OrderedDict( (("@value", toolkit.c.resource["created"].split("T")[0]), ("@type", "xsd:date")) )
         if toolkit.c.resource["last_modified"]:
             modified_date = toolkit.c.resource["last_modified"].split("T")[0]
         else:
             modified_date = csvw_json_data["dc:issued"]["@value"]
-        csvw_json_data["dc:modified"] = {"@value":modified_date, "@type":"xsd:date"}
+        csvw_json_data["dc:modified"] = OrderedDict( (("@value", modified_date), ("@type", "xsd:date")) )
         
         #Creating a dictionary for each CSV header so that we can stuff data from form to those dictionaries
-        schema = {"columns":[dict() for i in range(len(csv_headers))]}
+        schema = {"columns":[OrderedDict() for i in range(len(csv_headers))]}
 
         #form field names come in "{header_num}-{form_field_name}"
         form_elements = form_data.keys()
@@ -252,10 +252,18 @@ class ResourceCSVController(base.BaseController):
             resource = column.pop("resource")
             columnReference = column.pop("columnReference")
             if "foreignKeys" in column:
-                column["foreignKeys"] = [{ "reference" : {"resource":resource, "columnReference":columnReference}}]
                 column.pop("foreignKeys")
+                column["foreignKeys"] = [{ "reference" : OrderedDict((("resource", resource), ("columnReference", columnReference)))}]
             else:
                 pass 
+
+        #Sorting schema fields to make the column secription human-readable
+        order = [u'name', u'titles', u'dc:description', u'datatype', u'length', u'required', u'primaryKey', u'foreignKeys']
+        cmp = lambda x,y: 1 if x in order and y in order and order.index(x) > order.index(y) else -1
+        for i, column in enumerate(schema["columns"]):
+            print(column)
+            schema["columns"][i] = OrderedDict(sorted(column.items(), cmp=cmp, key=lambda x:x[0]))
+            print(schema["columns"][i])
 
         #Adding created schema to CSVW dictionary
         csvw_json_data["tableSchema"] = schema

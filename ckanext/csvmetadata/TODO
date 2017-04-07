@@ -1,11 +1,7 @@
 Link CSV to JSON using schema field, fallback on filename
 
 internationalization
-Translate HTTP error code in template
 
 Test with unicode in file header
-
-Save metadata (?)
-Order of elements in CSVW column description
 
 export styles to CSS
