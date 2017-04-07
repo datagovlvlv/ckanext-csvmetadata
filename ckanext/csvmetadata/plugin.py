@@ -318,6 +318,10 @@ class ResourceCSVController(base.BaseController):
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _('Resource not found'))
 
+        if str(toolkit.c.resource["format"]) != "CSV":
+            return base.render('csvmetadata/resource_csv.html',
+                           extra_vars={'status':'not_csv'})
+
         #getting form schema to pass to template
         form_schema = self.get_form_schema()
         
