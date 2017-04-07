@@ -8,7 +8,8 @@ ckan.module('csvmetadata-required', function ($) {
               $.each( $('[data-required="true"]'), 
                   function (i, element) { 
                         var value = $(element).val();
-                        if (!value) {
+                        var element_hidden = $(element).is(":hidden");
+                        if (!value && !element_hidden) {
                             $('html,body').animate({scrollTop: $(element).offset().top});
                             window.form_valid = false;
                             return false;

@@ -48,6 +48,12 @@
           {% if required %}
               {% set x = attrs.__setitem__("data-required", "true") %}
           {% endif %}    
+          {% if form_field["name"] == "foreignKeys" %}
+              {% set x = attrs.__setitem__("data-module", "csvmetadata-foreignkey") %}
+              {% set x = attrs.__setitem__("data-foreignkey-id", csv_header_index) %}
+          {% elif form_field["name"] in ["resource", "columnReference"] %}
+              {% set x = attrs.__setitem__("data-foreignkey", csv_header_index) %}
+          {% endif %}
           {% if element_id in values %}
               {% set value=values[element_id] %}
               {% if element_type == "checkbox" %}
@@ -98,4 +104,5 @@
 {{ super() }}
 {% resource 'csvmetadata/csvmetadata.js' %}
 {% resource 'csvmetadata/csvmetadata_required.js' %}
+{% resource 'csvmetadata/csvmetadata_foreignkey.js' %}
 {% endblock %}
