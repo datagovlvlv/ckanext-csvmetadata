@@ -374,7 +374,7 @@ class ResourceCSVController(base.BaseController):
             try:
                 json_dict = self.fetch_json_return_values(json_url)
                 values = self.csvw_to_form(json_dict)
-            except KeyboardInterrupt as e:
+            except Exception as e:
                 pass #JSON is either unfetchable or badly constructed, so we won't use it
         
         #Getting CSV from the resource url
