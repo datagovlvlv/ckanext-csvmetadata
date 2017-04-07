@@ -2,7 +2,7 @@
 
 {% block inner_primary_nav %}
   {% if res.format == "CSV" %}
-    {{ h.build_nav_icon('resource_csv', 'CSV metadata', id=pkg.name, resource_id=res.id) }}
+    {{ h.build_nav_icon('resource_csv', _('CSV metadata'), id=pkg.name, resource_id=res.id) }}
   {% endif %}
   {{ super() }}
 {% endblock %}

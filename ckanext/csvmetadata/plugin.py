@@ -21,6 +21,7 @@ import ckan.lib.helpers as core_helpers
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as toolkit
+from ckan.lib.plugins import DefaultTranslation
 
 from ckan.common import _
 
@@ -350,9 +351,7 @@ class ResourceCSVController(base.BaseController):
 
             resource_name = filename
             
-            _, json_resource_id = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
-            print(json_resource_id)
-            print(_)
+            x, json_resource_id = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
             if json_resource_id:
                 log.info("Updating CSVW resource")
                 ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
@@ -367,7 +366,7 @@ class ResourceCSVController(base.BaseController):
             )
 
         #POST request processing code didn't continue, assuming GET method
-        json_url, _ = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
+        json_url, x = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
         values = {}
         if json_url:
             #Some kind of JSON URL is found, let's fetch it and get CSV header descriptions
@@ -388,11 +387,12 @@ class ResourceCSVController(base.BaseController):
                                        'csv_info':repr(csv_info)})
 
 
-class CSVMetadataPlugin(p.SingletonPlugin):
+class CSVMetadataPlugin(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.ITranslation)
 
     #IConfigurer
     def update_config(self, config):

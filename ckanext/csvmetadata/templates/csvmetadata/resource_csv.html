@@ -2,7 +2,7 @@
 {% import 'csvmetadata/form.html' as form %}
 {% import 'macros/form.html' as ckan_form %}
 
-{% block subtitle %}CSV metadata - {{ h.resource_display_name(res) }}{% endblock %}
+{% block subtitle %}{{ _("CSV metadata") }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block primary_content_inner %}
 
@@ -16,7 +16,7 @@
       <h3> {{ _("Check resource URL and try again") }} </h3>
     {% elif status == "not_csv" %}
       <h1> {{ _("Wrong file format or internal structure!") }} </h1> 
-      <h3> {{ _("'CSV metadata' works with CSV files that have CSV headers") }} </h3>
+      <h3> {{ _("'CSV metadata' extension works with CSV files") }} </h3>
     {% elif status.startswith("http_error_") %}
       {% set error_code=status[11:] %}
       <h1> {{ _("HTTP error while downloading resource, code:") }} {{error_code}} </h1>
@@ -93,7 +93,7 @@
       </table>
       <hr><br>
   {% endfor %}
-    <button class="btn btn-primary" style="display: block;margin-left: auto;margin-right: 10px;" type="submit">Save metadata</button>
+    <button class="btn btn-primary" style="display: block;margin-left: auto;margin-right: 10px;" type="submit">{{_("Save metadata")}}</button>
   </form>
 
   {% endif %}
