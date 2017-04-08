@@ -1,16 +1,14 @@
 # encoding: utf-8
 
 import os
-import csv
 import json
 import logging
 import requests
+import unicodecsv as csv
 from StringIO import StringIO
 from collections import OrderedDict
-from csv_unicode import UnicodeReader
-from ast import literal_eval as l_eval
+from ast import literal_eval as lit_eval
 from helpers import csvmetadata_language_text
-
 
 from ckanapi import LocalCKAN
 ckan_api = LocalCKAN()
@@ -105,11 +103,11 @@ class ResourceCSVController(base.BaseController):
                     elif content[:2] == '\xfe\xff': 
                         content = content[2:]
                         raise LookupError() #fall-through
-                    sample = content[:csv_header_byte_limit].decode(encoding.lower())
+                    sample = content[:csv_header_byte_limit]
                 except LookupError:
                     #encoding not found among Python decoders, fallback option is UTF8
                     #or we fell through due to UTF-16/UTF-8 marker found
-                    sample = content[:csv_header_byte_limit].decode("utf-8")
+                    sample = content[:csv_header_byte_limit]
                     encoding = "utf-8"
 
                 #Now trying to deduce, what kind of CSV is this and if it's CSV at all
@@ -124,7 +122,7 @@ class ResourceCSVController(base.BaseController):
                     csv_headers_str = sample.splitlines()[0].strip()
                     delimiter = str(dialect.delimiter)
                     quotechar = str(dialect.quotechar)
-                    csv_headers = UnicodeReader(StringIO(csv_headers_str), delimiter=delimiter, quotechar=quotechar, encoding=encoding).next()
+                    csv_headers = csv.reader(StringIO(csv_headers_str), delimiter=delimiter, quotechar=quotechar, encoding=encoding).next()
                     csv_info["delimiter"] = delimiter
                     csv_info["quoteChar"] = quotechar
                     csv_info["encoding"] = encoding
@@ -145,7 +143,7 @@ class ResourceCSVController(base.BaseController):
 
     def eval_remove_from_form(self, form_data, data_name):
         data_str = form_data.pop(data_name)
-        return l_eval(data_str)
+        return lit_eval(data_str)
 
     def csvw_to_form(self, csvw_dict):
         """
