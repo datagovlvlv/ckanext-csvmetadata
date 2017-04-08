@@ -270,22 +270,56 @@ class ResourceCSVController(base.BaseController):
         csvw_json_string_data = json.dumps(csvw_json_data, indent=2)
         return csvw_json_string_data
 
-    def find_existing_json_for_resource(self, resources, json_filename):
+    def link_json_to_csv(self, csv_resource, json_resource):
+        ckan_api.action.resource_update(id=csv_resource["id"], url=csv_resource["url"], conformsTo=json_resource["url"])
+
+    def find_existing_json_for_resource(self, resource, pkg_dict):
         """ 
-            Function determines if CSVW file with a given filename already exists among resources.
-            If it does, returns URL to download that file and its resource ID. Otherwise, returns None and None.
+            Function determines if CSVW file for a given CSV file exists. 
+            First, it checks if the 
+            (this field is created by dpp-dev/ckanext-scheming extension)
+            If field does not exist, it falls back on finding CSVW file
+            by looking through filenames of existing resources in same package
+            and using the one that has the same filename as a CSVW constructed
+            for given resource would.
+            If CSVW exists, returns URL to download it and its resource ID. Otherwise, returns None and None.
         """
         json_url = None
         json_res_id = None
-        #Going through resources to see if metadata JSON already exists
-        for resource in resources:
-            #If there are multiple versions with same filenames, selecting the last one in the list of resources
-            if self.filename_for_url(resource["url"]) == json_filename:
-                json_url = resource["url"]
-                json_res_id = resource["id"]
-        return json_url, json_res_id
 
-    def filename_for_url(self, url):
+        json_resources = [r for r in pkg_dict["resources"] if r["format"] == "JSON"]
+        if not json_resources: 
+            log.debug("No CSVW found for JSON!")
+            return None, None
+
+        if "conformsTo" in resource and resource["conformsTo"]:
+            #the "conformsTo" field stores metadata JSON URL
+            json_url = resource["conformsTo"]
+            for res in json_resources:
+                if res["url"] == json_url:
+                    #Found a fitting JSON resource!
+                    json_res_id = res["id"]
+                    return json_url, json_res_id
+            json_url = None #The CSVW resource was linked, but might have been deleted, or just disappeared
+            log.info("CSV file {} has linked JSON but it can't be found in resource list".format(resource["id"]))
+
+        #Couldn't find a relevant JSON by metadata    
+        log.info("CSV file has no onformsTo field - falling back on filename-based detection")
+        resource_filename = self.filename_from_url(resource["url"])
+        json_filename = self.make_json_filename(resource_filename)
+        for res in json_resources:
+            #Going through resources to see if JSON with same filename exists
+            #If there are multiple versions with same filenames, selecting the first one we find
+            if self.filename_from_url(res["url"]) == json_filename:
+                json_url = res["url"]
+                json_res_id = res["id"]
+                return json_url, json_res_id
+
+        #It seems we didn't find anything
+        log.debug("No CSVW found for JSON!")
+        return None, None
+
+    def filename_from_url(self, url):
         """
            Given an URL, returns its last part which, most likely, contains the resource's filename.
         """
@@ -348,13 +382,16 @@ class ResourceCSVController(base.BaseController):
 
             resource_name = filename
             
-            x, json_resource_id = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
+            json_url, json_resource_id = self.find_existing_json_for_resource(tk.c.resource, tk.c.pkg_dict)
             if json_resource_id:
                 log.info("Updating CSVW resource")
-                ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
+                json_resource = ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
             else:
                 log.info("Creating a new CSVW resource")
-                ckan_api.action.resource_create(package_id=id, name=resource_name, url="", upload=io_object)
+                json_resource = ckan_api.action.resource_create(package_id=id, name=resource_name, url="", upload=io_object)
+
+            self.link_json_to_csv(tk.c.resource, json_resource)
+                            
             #Successfully uploaded, now redirecting to the package contents page to show that JSON file was created successfully
             core_helpers.redirect_to(
                 controller='package',
@@ -363,7 +400,7 @@ class ResourceCSVController(base.BaseController):
             )
 
         #POST request processing code didn't continue, assuming GET method
-        json_url, x = self.find_existing_json_for_resource(other_resources, self.make_json_filename(resource_filename))
+        json_url, x = self.find_existing_json_for_resource(tk.c.resource, tk.c.pkg_dict)
         values = {}
         if json_url:
             #Some kind of JSON URL is found, let's fetch it and get CSV header descriptions
