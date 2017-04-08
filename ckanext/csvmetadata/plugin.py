@@ -312,7 +312,7 @@ class ResourceCSVController(base.BaseController):
             
 
         #Couldn't find a relevant JSON by metadata    
-        log.info("CSV file has no onformsTo field - falling back on filename-based detection")
+        log.info("CSV file has no conformsTo field - falling back on filename-based detection")
         resource_filename = self.filename_from_url(resource["url"])
         json_filename = self.make_json_filename(resource_filename)
         for res in json_resources:
