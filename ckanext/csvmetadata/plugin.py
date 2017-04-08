@@ -20,7 +20,7 @@ import ckan.lib.base as base
 import ckan.lib.helpers as core_helpers
 import ckan.logic as logic
 import ckan.model as model
-import ckan.plugins.toolkit as toolkit
+import ckan.plugins.toolkit as tk
 from ckan.lib.plugins import DefaultTranslation
 
 from ckan.common import _
@@ -188,8 +188,8 @@ class ResourceCSVController(base.BaseController):
            The form data comes as HTML form data through a POST request
            so there is POST-specific processing, too.
         """
-        #Assumes info about current resource is in toolkit.c.pkg_dict
-        #and info about current package is in toolkit.c.resource
+        #Assumes info about current resource is in tk.c.pkg_dict
+        #and info about current package is in tk.c.resource
         #The info is placed there by resource_csv controller (in this same class)
 
         #csv headers and csv info dict are passed along with form data, removing them from the form data
@@ -199,23 +199,23 @@ class ResourceCSVController(base.BaseController):
         form_data.pop("csv_has_headers")
 
         #getting data about organization
-        org_data = toolkit.c.pkg_dict["organization"]
+        org_data = tk.c.pkg_dict["organization"]
         org_url = "{}/organization/{}".format(ckan_site_url, org_data["name"])
 
         #Dictionary to store CSVW data
         csvw_json_data = OrderedDict()
         csvw_json_data["@context"] = ["http://www.w3.org/ns/csvw", {"@language":"lv"}]
         #csvw_json_data["@type"] = "Table"
-        csvw_json_data["url"] = toolkit.c.resource["url"]
+        csvw_json_data["url"] = tk.c.resource["url"]
         csvw_json_data["dialect"] = csv_info
-        csvw_json_data["dc:title"] = toolkit.c.pkg_dict["title"]
-        csvw_json_data["dcat:keyword"] = [tag["name"] for tag in toolkit.c.pkg_dict["tags"]] if "tags" in toolkit.c.pkg_dict else []
+        csvw_json_data["dc:title"] = tk.c.pkg_dict["title"]
+        csvw_json_data["dcat:keyword"] = [tag["name"] for tag in tk.c.pkg_dict["tags"]] if "tags" in tk.c.pkg_dict else []
         csvw_json_data["dc:publisher"] = OrderedDict( (("schema:name", org_data["title"]),
                                           ( "schema:url", org_url)) )
-        csvw_json_data["dc:license"] = {"@id":toolkit.c.pkg_dict["license_url"]}
-        csvw_json_data["dc:issued"] = OrderedDict( (("@value", toolkit.c.resource["created"].split("T")[0]), ("@type", "xsd:date")) )
-        if toolkit.c.resource["last_modified"]:
-            modified_date = toolkit.c.resource["last_modified"].split("T")[0]
+        csvw_json_data["dc:license"] = {"@id":tk.c.pkg_dict["license_url"]}
+        csvw_json_data["dc:issued"] = OrderedDict( (("@value", tk.c.resource["created"].split("T")[0]), ("@type", "xsd:date")) )
+        if tk.c.resource["last_modified"]:
+            modified_date = tk.c.resource["last_modified"].split("T")[0]
         else:
             modified_date = csvw_json_data["dc:issued"]["@value"]
         csvw_json_data["dc:modified"] = OrderedDict( (("@value", modified_date), ("@type", "xsd:date")) )
@@ -314,12 +314,12 @@ class ResourceCSVController(base.BaseController):
         #Getting information about the package and resource
         #It's necessary for the base template to render, and we can also use the data ourselves
         try:
-            toolkit.c.pkg_dict = p.toolkit.get_action('package_show')(None, {'id': id})
-            toolkit.c.resource = p.toolkit.get_action('resource_show')(None, {'id': resource_id})
+            tk.c.pkg_dict = tk.get_action('package_show')(None, {'id': id})
+            tk.c.resource = tk.get_action('resource_show')(None, {'id': resource_id})
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _('Resource not found'))
 
-        if str(toolkit.c.resource["format"]) != "CSV":
+        if str(tk.c.resource["format"]) != "CSV":
             return base.render('csvmetadata/resource_csv.html',
                            extra_vars={'status':'not_csv'})
 
@@ -327,21 +327,21 @@ class ResourceCSVController(base.BaseController):
         form_schema = self.get_form_schema()
         
         #getting resource url, checking if it's good
-        resource_url = toolkit.c.resource["url"] if "url" in toolkit.c.resource else ""
+        resource_url = tk.c.resource["url"] if "url" in tk.c.resource else ""
         if not resource_url:
             #No URL shown or empty URL, failing early
             return base.render('csvmetadata/resource_csv.html',
                            extra_vars={'status':'url_fail'})
 
-        resource_filename = self.filename_for_url(resource_url)
+        resource_filename = self.filename_from_url(resource_url)
         #Info about other resources - for JSON file lookup
-        other_resources = [resource for resource in toolkit.c.pkg_dict["resources"] if resource["id"] != resource_id]
+        other_resources = [resource for resource in tk.c.pkg_dict["resources"] if resource["id"] != resource_id]
         
         #Checking if we're in a POST request - 
         #then we need to create JSON from received data and upload it
-        if toolkit.request.method == 'POST':
+        if tk.request.method == 'POST':
             #Loading data from form
-            form_data = p.toolkit.request.POST
+            form_data = tk.request.POST
             csvw_string = self.form_to_csvw(form_data)
             io_object = StringIO(csvw_string)
             
@@ -396,8 +396,8 @@ class CSVMetadataPlugin(p.SingletonPlugin, DefaultTranslation):
 
     #IConfigurer
     def update_config(self, config):
-        toolkit.add_template_directory(config, 'templates')
-        toolkit.add_resource('fanstatic', 'csvmetadata')
+        tk.add_template_directory(config, 'templates')
+        tk.add_resource('fanstatic', 'csvmetadata')
 
     #IConfigurable
     def configure(self, config):

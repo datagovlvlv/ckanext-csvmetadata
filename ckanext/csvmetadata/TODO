@@ -1,6 +1,4 @@
-Link CSV to JSON using schema field, fallback on filename
-
-internationalization
+Doesn't work with private resources - look into fixing
 
 Test with unicode in file header
 
