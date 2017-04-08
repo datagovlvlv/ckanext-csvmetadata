@@ -288,20 +288,28 @@ class ResourceCSVController(base.BaseController):
         json_res_id = None
 
         json_resources = [r for r in pkg_dict["resources"] if r["format"] == "JSON"]
-        if not json_resources: 
-            log.debug("No CSVW found for JSON!")
-            return None, None
 
+        #Check doesn't work when there's an external CSVW file linked
+        #if not json_resources: 
+        #    log.debug("No CSVW found for JSON!")
+        #    return None, None
+
+        print(resource)
         if "conformsTo" in resource and resource["conformsTo"]:
             #the "conformsTo" field stores metadata JSON URL
             json_url = resource["conformsTo"]
+            print(json_url)
             for res in json_resources:
                 if res["url"] == json_url:
                     #Found a fitting JSON resource!
                     json_res_id = res["id"]
                     return json_url, json_res_id
-            json_url = None #The CSVW resource was linked, but might have been deleted, or just disappeared
+            #Now, the json_url is set in the resource description, but it doesn't belong to a resource.
+            #So, we return its URL, but indicate it has no resource associated
+            #So next time the CSVW is regenerated, it'll be saved as a new resource
             log.info("CSV file {} has linked JSON but it can't be found in resource list".format(resource["id"]))
+            return json_url, None
+            
 
         #Couldn't find a relevant JSON by metadata    
         log.info("CSV file has no onformsTo field - falling back on filename-based detection")
