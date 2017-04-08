@@ -262,9 +262,7 @@ class ResourceCSVController(base.BaseController):
         order = [u'name', u'titles', u'dc:description', u'datatype', u'length', u'required', u'primaryKey', u'foreignKeys']
         cmp = lambda x,y: 1 if x in order and y in order and order.index(x) > order.index(y) else -1
         for i, column in enumerate(schema["columns"]):
-            print(column)
             schema["columns"][i] = OrderedDict(sorted(column.items(), cmp=cmp, key=lambda x:x[0]))
-            print(schema["columns"][i])
 
         #Adding created schema to CSVW dictionary
         csvw_json_data["tableSchema"] = schema
@@ -304,7 +302,6 @@ class ResourceCSVController(base.BaseController):
             relies on this function is modified accordingly.
         """
         filename_no_ext = resource_filename.rsplit('.', 1)[0]
-        print(filename_no_ext)
         return "{}_metadata.json".format(filename_no_ext)
 
     def resource_csv(self, id, resource_id):
