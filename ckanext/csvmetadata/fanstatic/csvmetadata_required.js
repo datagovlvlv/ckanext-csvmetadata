@@ -12,6 +12,9 @@ ckan.module('csvmetadata-required', function ($) {
                         if (!value && !element_hidden) {
                             $(element).css({"background-color": "lightpink"});
                         } 
+                        else {
+                            $(element).css({"background-color": "white"});
+                        }
                   }
               );
               $.each( $('[data-required="true"]'), 
