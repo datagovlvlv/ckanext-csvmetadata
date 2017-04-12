@@ -164,6 +164,14 @@ class ResourceCSVController(base.BaseController):
         return json_dict
 
     def eval_remove_from_form(self, form_data, data_name):
+        """
+            A small helper function that takes a dictionary, pops a 
+            value out of it by key name, evaluates the value (using 
+            ast.literal_eval function which only evaluates basic data 
+            structures) and returns it. Great for parsing data that
+            was created by repr() in the template and passed back
+            to the controller.
+        """
         data_str = form_data.pop(data_name)
         return lit_eval(data_str)
 
@@ -251,7 +259,7 @@ class ResourceCSVController(base.BaseController):
                 header_num_str, form_field_name = key.split("-", 1)
                 header_num = int(header_num_str)
             except:
-                print("Error while parsing key {}".format(key))
+                log.info("Error while parsing key {}".format(key))
             else:
                 schema["columns"][header_num][form_field_name] = form_data[key]
         
@@ -437,6 +445,8 @@ class ResourceCSVController(base.BaseController):
                 json_dict = self.fetch_json_return_values(json_url, url_type)
                 values = self.csvw_to_form(json_dict)
             except Exception as e:
+                logging.warning("Exception while getting JSON:")
+                logging.warning(repr(e))
                 pass #JSON is either unfetchable or badly constructed, so we won't use it
         
         url_type = tk.c.resource["url_type"] if "url_type" in tk.c.resource else None
