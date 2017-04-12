@@ -31,6 +31,9 @@ form_schema_path = None
 #A global that stores CKAN site url
 ckan_site_url = None
 
+#A global that stores CKAN API key
+ckan_api_key = None
+
 #A limit of CSV file size to be processed in order to get headers
 csv_header_byte_limit = 4096
 
@@ -75,13 +78,20 @@ class ResourceCSVController(base.BaseController):
             element["required"] = element.pop("required") if "required" in element else False
         return schema
 
-    def get_csv_sample(self, csv_url):
+    def get_csv_sample(self, csv_url, url_type=None):
         status = "ok"
         csv_headers = []
         csv_info = {"delimiter":"", "encoding":"", "quoteChar":""}
-        
+
+        headers = {}
+        if url_type == "upload":
+            headers["Authorization"] = ckan_api_key
+            logging.info("CSV is stored in CKAN storage!")
+        elif url_type is not None:
+            log.warning("Unknown resource URL type: {}".format(csv_url))
+
         try:
-            req = requests.get(csv_url, timeout=10, stream=True)
+            req = requests.get(csv_url, headers=headers, timeout=10, stream=True)
         except:
             status = "url_fail"
         else:
@@ -136,8 +146,20 @@ class ResourceCSVController(base.BaseController):
 
         return status, csv_headers, csv_info
 
-    def fetch_json_return_values(self, json_url):
-        req = requests.get(json_url)
+    def fetch_json_return_values(self, json_url, url_type):
+        """
+            Downloads saved JSON with metadata, parses it as JSON and
+            returns an object that contains the parsed JSON - in our
+            case, it's 99.999% likely to be a dictionary
+        """
+        headers = {}
+        if url_type == "upload":
+            headers["Authorization"] = ckan_api_key
+            logging.info("JSON is stored in CKAN storage!")
+        elif url_type is not None:
+            log.warning("Unknown resource URL type: {}".format(csv_url))
+
+        req = requests.get(json_url, headers=headers, timeout=3)
         json_dict = json.loads(req.text)
         return json_dict
 
@@ -280,33 +302,33 @@ class ResourceCSVController(base.BaseController):
             by looking through filenames of existing resources in same package
             and using the one that has the same filename as a CSVW constructed
             for given resource would.
-            If CSVW exists, returns URL to download it and its resource ID. Otherwise, returns None and None.
+            If CSVW exists, returns URL to download it, URL type and CSVW file resource ID. Otherwise, returns None, None and None.
         """
         json_url = None
         json_res_id = None
+        url_type = None
 
         json_resources = [r for r in pkg_dict["resources"] if r["format"] == "JSON"]
 
         #Check doesn't work when there's an external CSVW file linked
         #if not json_resources: 
         #    log.debug("No CSVW found for JSON!")
-        #    return None, None
+        #    return None, None, None
 
-        print(resource)
         if "conformsTo" in resource and resource["conformsTo"]:
             #the "conformsTo" field stores metadata JSON URL
             json_url = resource["conformsTo"]
-            print(json_url)
             for res in json_resources:
                 if res["url"] == json_url:
                     #Found a fitting JSON resource!
                     json_res_id = res["id"]
-                    return json_url, json_res_id
+                    url_type = res["url_type"] if "url_type" in res else None
+                    return json_url, url_type, json_res_id
             #Now, the json_url is set in the resource description, but it doesn't belong to a resource.
             #So, we return its URL, but indicate it has no resource associated
             #So next time the CSVW is regenerated, it'll be saved as a new resource
             log.info("CSV file {} has linked JSON but it can't be found in resource list".format(resource["id"]))
-            return json_url, None
+            return json_url, None, None
             
 
         #Couldn't find a relevant JSON by metadata    
@@ -319,11 +341,12 @@ class ResourceCSVController(base.BaseController):
             if self.filename_from_url(res["url"]) == json_filename:
                 json_url = res["url"]
                 json_res_id = res["id"]
-                return json_url, json_res_id
+                url_type = res["url_type"] if "url_type" in res else None
+                return json_url, url_type, json_res_id
 
         #It seems we didn't find anything
         log.debug("No CSVW found for JSON!")
-        return None, None
+        return None, None, None
 
     def filename_from_url(self, url):
         """
@@ -388,7 +411,7 @@ class ResourceCSVController(base.BaseController):
 
             resource_name = filename
             
-            json_url, json_resource_id = self.find_existing_json_for_resource(tk.c.resource, tk.c.pkg_dict)
+            x, x, json_resource_id = self.find_existing_json_for_resource(tk.c.resource, tk.c.pkg_dict)
             if json_resource_id:
                 log.info("Updating CSVW resource")
                 json_resource = ckan_api.action.resource_update(id=json_resource_id, url="", upload=io_object)
@@ -406,18 +429,19 @@ class ResourceCSVController(base.BaseController):
             )
 
         #POST request processing code didn't continue, assuming GET method
-        json_url, x = self.find_existing_json_for_resource(tk.c.resource, tk.c.pkg_dict)
+        json_url, url_type, x = self.find_existing_json_for_resource(tk.c.resource, tk.c.pkg_dict)
         values = {}
         if json_url:
             #Some kind of JSON URL is found, let's fetch it and get CSV header descriptions
             try:
-                json_dict = self.fetch_json_return_values(json_url)
+                json_dict = self.fetch_json_return_values(json_url, url_type)
                 values = self.csvw_to_form(json_dict)
             except Exception as e:
                 pass #JSON is either unfetchable or badly constructed, so we won't use it
         
+        url_type = tk.c.resource["url_type"] if "url_type" in tk.c.resource else None
         #Getting CSV from the resource url
-        status, csv_headers, csv_info = self.get_csv_sample(resource_url)
+        status, csv_headers, csv_info = self.get_csv_sample(resource_url, url_type)
 
         return base.render('csvmetadata/resource_csv.html',
                            extra_vars={'status':status, 
@@ -441,16 +465,16 @@ class CSVMetadataPlugin(p.SingletonPlugin, DefaultTranslation):
 
     #IConfigurable
     def configure(self, config):
-        global ckan_site_url
+        global ckan_site_url, ckan_api_key
 
-        self.config = config
-
-        for config_option in ('ckan.site_url', ):
+        for config_option in ('ckan.site_url', "csvmetadata.ckan_api_key"):
             if not config.get(config_option):
                 raise Exception(
                     'Config option `{0}` must be set to use CSVMetadata.'
                     .format(config_option))
         ckan_site_url = config.get('ckan.site_url')
+        ckan_api_key = config.get('csvmetadata.ckan_api_key')
+
         plugin_path = os.path.dirname(__file__)
         self.form_schema_path = os.path.join(plugin_path, "form_schema.json")
         check_json_file(self.form_schema_path) #Will try to open and validate file at the path
