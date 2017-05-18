@@ -31,6 +31,9 @@ form_schema_path = None
 #A global that stores CKAN site url
 ckan_site_url = None
 
+#A global that stores CKAN root path
+ckan_root_path = None
+
 #A global that stores CKAN API key
 ckan_api_key = None
 
@@ -228,7 +231,10 @@ class ResourceCSVController(base.BaseController):
 
         #getting data about organization
         org_data = tk.c.pkg_dict["organization"]
-        org_url = "{}/organization/{}".format(ckan_site_url, org_data["name"])
+        if ckan_root_path is not None:
+            org_url = "{}/{}/organization/{}".format(ckan_site_url, ckan_root_path, org_data["name"])
+        else:
+            org_url = "{}/organization/{}".format(ckan_site_url, org_data["name"])
 
         #Dictionary to store CSVW data
         csvw_json_data = OrderedDict()
@@ -475,14 +481,20 @@ class CSVMetadataPlugin(p.SingletonPlugin, DefaultTranslation):
 
     #IConfigurable
     def configure(self, config):
-        global ckan_site_url, ckan_api_key
+        global ckan_site_url, ckan_root_path, ckan_api_key
 
-        for config_option in ('ckan.site_url', "csvmetadata.ckan_api_key"):
+        for config_option in ('ckan.site_url', 'csvmetadata.ckan_api_key'):
             if not config.get(config_option):
                 raise Exception(
                     'Config option `{0}` must be set to use CSVMetadata.'
                     .format(config_option))
         ckan_site_url = config.get('ckan.site_url')
+        ckan_root_path = config.get('ckan.root_path')
+        if isinstance(ckan_root_path, basestring):
+            if "{{LANG}}" in ckan_root_path:
+                ckan_root_path = ckan_root_path.replace('{{LANG}}', '')
+                ckan_root_path = ckan_root_path.replace('//', '/')
+            ckan_root_path = ckan_root_path.strip('/')
         ckan_api_key = config.get('csvmetadata.ckan_api_key')
 
         plugin_path = os.path.dirname(__file__)
