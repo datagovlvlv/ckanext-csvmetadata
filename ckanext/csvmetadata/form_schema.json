@@ -67,6 +67,16 @@
 				{
 				"value": "dateTime",
 				"label": "dateTime"
+				},
+				{
+				"value": "latitude",
+				"label": "Y/Lat",
+				"text": "Y/Lat"
+				},
+				{
+				"value": "longitude",
+				"label": "X/Long",
+				"text": "X/Long"
 				}
 			],
 		  "help_text": { "lv": "Izvēlieties atbilstošu datu tipu datu kolonai",

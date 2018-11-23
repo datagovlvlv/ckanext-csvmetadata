@@ -189,7 +189,7 @@ class ResourceCSVController(base.BaseController):
         column_info = csvw_dict["tableSchema"]["columns"]
         for i, column in enumerate(column_info):
             #Datatype is a separate dict inside, processing it
-            datatype = column["datatype"]["base"]
+            datatype = column["datatype"]["dc:title"] or column["datatype"]["base"]
             length = column["datatype"]["length"]
             column.pop("datatype")
             form_values["{}-datatype".format(i)] = datatype
@@ -282,7 +282,19 @@ class ResourceCSVController(base.BaseController):
             #dict is passed by reference, so we don't have to replace it after changing its contents
             base = column.pop("datatype")
             length = column.pop("length")
-            column["datatype"] = {"base":base, "length":length}
+            #column["datatype"] = {"base":base, "length":length, "dc:title":base}
+            column["datatype"] = OrderedDict( (("dc:title", base), ("base", base), ("length", length)) )
+
+            # lat/long processing
+            if(base == "latitude"):
+                column["datatype"]["base"] = "decimal"
+                column["datatype"]["minimum"] = "-90"
+                column["datatype"]["maximum"] = "90"
+            elif (base == "longitude"):
+                column["datatype"]["base"] = "decimal"
+                column["datatype"]["minimum"] = "-180"
+                column["datatype"]["maximum"] = "180"
+
             #Now need to process primary and secondary keys
             resource = column.pop("resource")
             columnReference = column.pop("columnReference")
