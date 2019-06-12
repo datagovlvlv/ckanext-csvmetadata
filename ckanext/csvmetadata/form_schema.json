@@ -77,6 +77,16 @@
 				"value": "longitude",
 				"label": "X/Long",
 				"text": "X/Long"
+				},
+				{
+				"value": "X",
+				"label": "LKS92 X/N (m, ↑)",
+				"text": "LKS92 X/N (m, ↑)"
+				},
+				{
+				"value": "Y",
+				"label": "LKS92 Y/E (m, →)",
+				"text": "LKS92 Y/E (m, →)"
 				}
 			],
 		  "help_text": { "lv": "Izvēlieties atbilstošu datu tipu datu kolonai",

@@ -294,6 +294,14 @@ class ResourceCSVController(base.BaseController):
                 column["datatype"]["base"] = "decimal"
                 column["datatype"]["minimum"] = "-180"
                 column["datatype"]["maximum"] = "180"
+            elif (base == "X"):
+                column["datatype"]["base"] = "decimal"
+                column["datatype"]["minimum"] = "160000"
+                column["datatype"]["maximum"] = "450000"
+            elif (base == "Y"):
+                column["datatype"]["base"] = "decimal"
+                column["datatype"]["minimum"] = "300000"
+                column["datatype"]["maximum"] = "780000"
 
             #Now need to process primary and secondary keys
             resource = column.pop("resource")
